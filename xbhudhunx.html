@@ -12,7 +12,23 @@
         .no-scrollbar::-webkit-scrollbar { display: none; }
         @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
         .animate-up { animation: slideUp 0.3s ease-out; }
-        #reader { border-radius: 1.5rem; overflow: hidden; border: none !important; }
+        /* CSS agar tampilan kamera rapi */
+        #reader { 
+            border-radius: 1.5rem !important; 
+            overflow: hidden !important; 
+            border: 2px solid rgba(59, 130, 246, 0.5) !important;
+            background: #0f172a !important;
+        }
+        #reader__dashboard_section_csr button {
+            background-color: #3b82f6 !important;
+            color: white !important;
+            padding: 8px 16px !important;
+            border-radius: 10px !important;
+            text-transform: uppercase !important;
+            font-weight: 800 !important;
+            font-size: 10px !important;
+            margin: 5px !important;
+        }
     </style>
 </head>
 <body class="bg-slate-950 text-slate-200 p-4 md:p-8 text-[10px]">
@@ -21,7 +37,7 @@
         <div class="flex justify-between items-center mb-8">
             <div>
                 <h1 class="text-2xl font-black italic tracking-tighter text-blue-400 uppercase">XBHUDHUNX</h1>
-                <p class="text-[8px] font-bold text-slate-500 tracking-[0.2em] uppercase">Barcode & Database Panel</p>
+                <p class="text-[8px] font-bold text-slate-500 tracking-[0.2em] uppercase">Djamantara Admin Panel</p>
             </div>
             <button onclick="window.location.href='index.html'" class="bg-white/5 border border-white/10 px-4 py-2 rounded-xl font-bold uppercase text-[9px]">Toko</button>
         </div>
@@ -29,7 +45,11 @@
         <div class="bg-slate-900 p-4 rounded-[2rem] border border-blue-500/30 mb-6">
             <h3 class="text-center font-black text-blue-400 mb-3 uppercase italic">Scan Barcode Barang</h3>
             <div id="reader" class="w-full"></div>
-            <p id="scanResult" class="text-center mt-2 text-[8px] text-slate-500 uppercase font-bold italic">Kamera Siap...</p>
+            <div class="flex justify-center gap-2 mt-4">
+                <button onclick="mulaiKamera()" class="bg-blue-600 text-white px-4 py-2 rounded-lg font-bold uppercase text-[8px]">Aktifkan Kamera</button>
+                <button onclick="stopKamera()" class="bg-red-600 text-white px-4 py-2 rounded-lg font-bold uppercase text-[8px]">Matikan</button>
+            </div>
+            <p id="scanResult" class="text-center mt-2 text-[8px] text-slate-500 uppercase font-bold italic">Status: Kamera Siap...</p>
         </div>
 
         <div class="bg-slate-900 p-8 rounded-[3rem] border border-white/5 shadow-2xl mb-24">
@@ -103,16 +123,31 @@
         const db = getDatabase(app);
         let dataFull = {};
 
-        // --- LOGIKA SCANNER ---
-        function onScanSuccess(decodedText) {
-            document.getElementById('nama').value = decodedText;
-            document.getElementById('scanResult').innerText = "Terdeteksi: " + decodedText;
-            // Getaran HP jika berhasil scan
-            if (navigator.vibrate) navigator.vibrate(100);
-        }
+        // --- LOGIKA SCANNER TERBARU ---
+        let html5QrCode;
 
-        let html5QrcodeScanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: 250 });
-        html5QrcodeScanner.render(onScanSuccess);
+        window.mulaiKamera = () => {
+            html5QrCode = new Html5Qrcode("reader");
+            const config = { fps: 10, qrbox: { width: 250, height: 150 } };
+
+            // Meminta kamera belakang secara spesifik
+            html5QrCode.start({ facingMode: "environment" }, config, (decodedText) => {
+                document.getElementById('nama').value = decodedText;
+                document.getElementById('scanResult').innerText = "BERHASIL: " + decodedText;
+                if (navigator.vibrate) navigator.vibrate(100);
+                stopKamera(); // Berhenti otomatis setelah dapet
+            }).catch(err => {
+                alert("Gagal akses kamera: " + err);
+            });
+        };
+
+        window.stopKamera = () => {
+            if (html5QrCode) {
+                html5QrCode.stop().then(() => {
+                    html5QrCode.clear();
+                }).catch(err => console.log(err));
+            }
+        };
 
         // --- LOGIKA DATABASE ---
         window.simpanData = () => {
@@ -133,8 +168,7 @@
         };
 
         window.toggleGudang = () => {
-            const ov = document.getElementById('overlayGudang');
-            ov.classList.toggle('hidden');
+            document.getElementById('overlayGudang').classList.toggle('hidden');
         };
 
         onValue(ref(db, 'produk'), (snap) => {
