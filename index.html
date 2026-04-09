@@ -3,249 +3,145 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Djamantara | Exclusive Store</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <title>Djamantara Premium Supply</title>
     <style>
-        :root { --accent: #6366f1; }
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #020617; color: #cbd5e1; display: flex; flex-direction: column; min-height: 100vh; }
+        * { box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        body { background-color: #020617; color: white; margin: 0; padding-bottom: 80px; }
+
+        /* Header */
+        .header { background-color: #020617; padding: 20px; text-align: center; border-bottom: 1px solid #1e293b; }
+        .logo { font-size: 24px; font-weight: 900; letter-spacing: 2px; margin: 0; }
+        .sub-logo { font-size: 10px; color: #94a3b8; letter-spacing: 3px; margin-bottom: 15px; }
         
-        /* Header Gelap */
-        .dark-header { background-color: #0f172a; border-bottom: 1px solid rgba(255,255,255,0.05); }
-        
-        .glass-card { background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255,255,255,0.05); }
-        
-        .product-card { transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1); position: relative; }
-        .product-card:hover { transform: translateY(-5px); border-color: var(--accent); }
-        
-        .img-gradient { background: linear-gradient(to bottom, transparent 50%, rgba(2, 6, 23, 0.9)); }
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        
-        .btn-primary { background: var(--accent); transition: all 0.3s; }
-        .btn-primary:hover { filter: brightness(1.1); transform: scale(1.02); }
-        
-        /* Struk / Checkout Area */
-        .live-receipt { 
-            border-top: 1px solid rgba(255,255,255,0.1); 
-            background-color: rgba(15, 23, 42, 0.95); 
-            backdrop-filter: blur(15px); 
+        .btn-bayar { 
+            background-color: #6366f1; color: white; border: none; 
+            padding: 12px; width: 80%; border-radius: 50px; 
+            font-weight: bold; cursor: pointer; transition: 0.3s;
         }
 
-        /* Label nama di tengah gambar */
-        .product-title-overlay {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 85%;
-            text-align: center;
-            pointer-events: none;
+        /* Search Bar */
+        .search-container { padding: 15px; }
+        .search-bar { 
+            width: 100%; background: #0f172a; border: 1px solid #1e293b; 
+            padding: 10px; border-radius: 8px; color: white; 
         }
+
+        /* Grid Produk */
+        .product-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 15px; }
+        .card { background: #0f172a; border-radius: 15px; overflow: hidden; position: relative; }
+        .card img { width: 100%; height: 150px; object-fit: cover; opacity: 0.6; }
+        
+        .card-title {
+            position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%);
+            width: 80%; text-align: center; background: rgba(0,0,0,0.5);
+            padding: 5px; border-radius: 4px; font-size: 11px; font-weight: bold;
+        }
+        
+        .card-info { padding: 10px; text-align: center; }
+        .price { font-weight: bold; font-size: 16px; margin: 5px 0; }
+
+        /* Modal Rincian (Slide Up) */
+        #modalRincian {
+            position: fixed; bottom: -100%; left: 0; width: 100%; height: 85%;
+            background: #020617; border-top: 2px solid #6366f1; 
+            z-index: 1000; transition: 0.5s; padding: 20px;
+            border-radius: 25px 25px 0 0;
+        }
+        #modalRincian.active { bottom: 0; }
+
+        /* Item Rincian */
+        .item-rincian {
+            display: flex; align-items: center; background: #0f172a;
+            padding: 10px; border-radius: 12px; margin-bottom: 10px;
+        }
+        .mini-img { width: 45px; height: 45px; border-radius: 8px; margin-right: 12px; }
+        .counter { display: flex; align-items: center; background: #020617; border-radius: 5px; padding: 2px 8px; }
+        .counter button { background: none; border: none; color: #6366f1; font-size: 18px; cursor: pointer; }
+        .counter input { width: 25px; background: none; border: none; color: white; text-align: center; }
     </style>
 </head>
-<body class="pb-[200px]"> 
+<body>
 
-    <header class="dark-header sticky top-0 z-[60] py-6 px-6 shadow-xl text-white text-center">
-        <h1 class="text-3xl font-extrabold italic tracking-tighter uppercase leading-none">Djamantara</h1>
-        <p class="text-[9px] font-bold tracking-[0.2em] uppercase opacity-60 mt-1">Premium Supply</p>
+    <div class="header">
+        <h1 class="logo">DJAMANTARA</h1>
+        <div class="sub-logo">PREMIUM SUPPLY</div>
+        <button class="btn-bayar" onclick="toggleModal(true)">🛒 BAYAR PESANAN</button>
+    </div>
+
+    <div class="search-container">
+        <input type="text" class="search-bar" placeholder="Cari produk...">
+    </div>
+
+    <div class="product-grid">
+        <div class="card">
+            <img src="topi.jpg" alt="Topi">
+            <div class="card-title">TOPI TELADAN</div>
+            <div class="card-info">
+                <div class="price">Rp 20.000</div>
+            </div>
+        </div>
+        <div class="card">
+            <img src="dasi.jpg" alt="Dasi">
+            <div class="card-title">DASI SD VELCRO</div>
+            <div class="card-info">
+                <div class="price">Rp 7.000</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="modalRincian">
+        <p style="text-align: center; color: #6366f1; font-weight: bold; font-size: 12px;">RINCIAN BELANJA ANDA</p>
         
-        <button onclick="scrollToCart()" class="mt-4 inline-flex items-center gap-2 bg-indigo-600 text-white px-8 py-2.5 rounded-full font-bold text-[11px] uppercase whitespace-nowrap shadow-lg hover:bg-indigo-500 active:scale-95 transition-all">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-            </svg>
-            Bayar Pesanan
-        </button>
-    </header>
-
-    <div class="sticky top-[125px] z-[50] bg-slate-950/80 backdrop-blur-sm border-b border-white/5 py-4 px-6 mb-8">
-        <div class="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div class="flex items-center gap-3 overflow-x-auto no-scrollbar pb-1">
-                <button onclick="filterProduk('Semua', this)" class="cat-btn bg-indigo-600 text-white px-6 py-2 rounded-xl font-bold text-[11px] uppercase whitespace-nowrap">Semua</button>
-                <button onclick="filterProduk('Pribadi', this)" class="cat-btn glass-card px-6 py-2 rounded-xl text-[11px] font-bold uppercase text-slate-400 whitespace-nowrap">Pribadi</button>
-                <button onclick="filterProduk('Profesional', this)" class="cat-btn glass-card px-6 py-2 rounded-xl text-[11px] font-bold uppercase text-slate-400 whitespace-nowrap">Profesional</button>
+        <div id="containerItem">
+            <div class="item-rincian">
+                <img src="dasi.jpg" class="mini-img">
+                <div style="flex: 1;">
+                    <div style="font-size: 13px; font-weight: bold;">DASI SD VELCRO</div>
+                    <div style="font-size: 11px; color: #64748b;">COWOK | Rp 7.000</div>
+                </div>
+                <div class="counter">
+                    <button onclick="ubahJumlah(-1)">-</button>
+                    <input type="text" id="qty" value="1" readonly>
+                    <button onclick="ubahJumlah(1)">+</button>
+                </div>
             </div>
-            <input type="text" id="searchInput" onkeyup="searchHandler()" placeholder="Cari produk..." class="bg-slate-900 border border-white/10 rounded-xl py-2 px-5 outline-none text-xs md:w-64 focus:border-indigo-500">
         </div>
-    </div>
 
-    <main class="flex-1 max-w-7xl mx-auto px-6 mb-12">
-        <div id="container" class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            </div>
-    </main>
-
-    <div id="cart" class="fixed bottom-0 left-0 right-0 z-[80] live-receipt px-6 py-5 shadow-2xl hidden">
-        <div class="max-w-7xl mx-auto">
-            <h2 class="text-[10px] font-black uppercase tracking-[0.3em] text-indigo-400 mb-4 text-center">Rincian Belanja Anda</h2>
+        <div style="margin-top: 30px; text-align: center;">
+            <p style="color: #64748b; font-size: 12px; margin-bottom: 5px;">TOTAL PEMBAYARAN</p>
+            <h2 id="totalHarga" style="margin: 0 0 20px 0;">Rp 7.000</h2>
             
-            <div id="isiNotaSimpel" class="space-y-3 max-h-[150px] overflow-y-auto no-scrollbar mb-6">
-                </div>
-
-            <div class="flex flex-col md:flex-row justify-between items-center gap-4 border-t border-white/10 pt-4">
-                <div class="text-center md:text-left">
-                    <p class="text-[9px] font-bold uppercase text-slate-500 tracking-wider">Total Pembayaran</p>
-                    <p class="font-bold text-3xl tracking-tighter text-white" id="cartTotalText">Rp 0</p>
-                </div>
-                
-                <div class="flex gap-3 w-full md:w-auto">
-                    <button onclick="resetOrder()" class="flex-1 bg-slate-800 text-slate-400 px-6 py-3 rounded-2xl font-bold text-[11px] uppercase hover:bg-red-900/20 hover:text-red-500 transition-all">Reset</button>
-                    <button onclick="sendToWA()" class="flex-[2] btn-primary flex items-center justify-center gap-2.5 px-8 py-3 rounded-2xl font-bold text-[11px] uppercase text-white shadow-lg shadow-indigo-600/20">
-                        Checkout WA
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
-                    </button>
-                </div>
+            <div style="display: flex; gap: 10px;">
+                <button onclick="toggleModal(false)" style="flex:1; padding: 15px; border-radius: 12px; background: #1e293b; color: white; border: none;">KEMBALI</button>
+                <button style="flex:2; padding: 15px; border-radius: 12px; background: #6366f1; color: white; border: none; font-weight: bold;">CHECKOUT WA →</button>
             </div>
         </div>
     </div>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyCa0EoSNnxgoxezzpzbkSIrEfwZdZc_7h0",
-            authDomain: "djamantara-projeck1.firebaseapp.com",
-            databaseURL: "https://djamantara-projeck1-default-rtdb.asia-southeast1.firebasedatabase.app",
-            projectId: "djamantara-projeck1",
-            storageBucket: "djamantara-projeck1.firebasestorage.app",
-            appId: "1:848439545978:web:f4f70991aa43af2f0cabc3"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const db = getDatabase(app);
-        let rawData = {}, cart = [], curFilter = 'Semua';
-
-        onValue(ref(db, 'produk'), (snap) => { rawData = snap.val(); render(); });
-
-        window.filterProduk = (kat, btn) => {
-            curFilter = kat;
-            document.querySelectorAll('.cat-btn').forEach(b => {
-                b.className = "cat-btn glass-card px-6 py-2 rounded-xl text-[11px] font-bold uppercase text-slate-400 whitespace-nowrap transition-all";
-            });
-            btn.className = "cat-btn bg-indigo-600 text-white px-6 py-2 rounded-xl font-bold text-[11px] uppercase whitespace-nowrap transition-all";
-            render();
-        };
-
-        const priceFmt = (v) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits:0 }).format(v);
-
-        window.render = (key = '') => {
-            const cont = document.getElementById('container');
-            cont.innerHTML = "";
-            for(let id in rawData) {
-                const item = rawData[id];
-                if((curFilter === 'Semua' || item.kategori === curFilter) && item.nama.toLowerCase().includes(key.toLowerCase())) {
-                    let iniPrice = item.harga;
-                    let varHtml = "";
-                    
-                    if (item.stokDetail) {
-                        const vList = item.stokDetail.split(',');
-                        iniPrice = parseInt(vList[0].split(':')[1]);
-                        varHtml = `<select id="sel-${id}" onchange="upPrice('${id}', this)" class="w-full mb-3 p-2 rounded-lg bg-slate-950 border border-white/5 text-[9px] font-bold uppercase text-indigo-400 outline-none">`;
-                        vList.forEach(v => {
-                            const [sz, pr, qt] = v.split(':');
-                            if(parseInt(qt) > 0) varHtml += `<option value="${sz.trim()}" data-price="${pr.trim()}">${sz.trim()} — ${priceFmt(pr.trim())}</option>`;
-                        });
-                        varHtml += `</select>`;
-                    }
-
-                    cont.innerHTML += `
-                        <div class="product-card glass-card rounded-2xl overflow-hidden flex flex-col h-full">
-                            <div class="relative aspect-square overflow-hidden group">
-                                <img src="${item.gambar}" class="w-full h-full object-cover opacity-60 group-hover:scale-110 transition-transform duration-700">
-                                <div class="absolute inset-0 img-gradient"></div>
-                                
-                                <div class="product-title-overlay">
-                                    <h3 class="text-[10px] font-black text-white uppercase tracking-wider leading-tight drop-shadow-lg bg-black/20 py-1 px-2 rounded">
-                                        ${item.nama}
-                                    </h3>
-                                </div>
-                            </div>
-
-                            <div class="p-4 flex flex-col flex-1 text-center">
-                                <p id="prc-${id}" class="text-white font-extrabold text-sm mb-3">${priceFmt(iniPrice)}</p>
-                                <div class="mt-auto">
-                                    ${varHtml}
-                                    <button onclick="toCart('${id}')" class="w-full py-2.5 rounded-xl bg-indigo-600 text-white text-[10px] font-bold uppercase active:scale-95 transition-all">
-                                        + Tambah
-                                    </button>
-                                </div>
-                            </div>
-                        </div>`;
-                }
+    <script>
+        function toggleModal(show) {
+            const modal = document.getElementById('modalRincian');
+            if(show) {
+                modal.classList.add('active');
+            } else {
+                modal.classList.remove('active');
             }
-        };
-
-        window.toCart = (id) => {
-            const el = document.getElementById(`sel-${id}`);
-            const pr = el ? parseInt(el.options[el.selectedIndex].getAttribute('data-price')) : rawData[id].harga;
-            const sz = el ? el.value : '-';
-            const exist = cart.find(i => i.id === id && i.sz === sz);
-            if(exist) { exist.qty += 1; } else { cart.push({ id, nama: rawData[id].nama, harga: pr, sz, qty: 1, img: rawData[id].gambar }); }
-            upUI();
-        };
-
-        window.changeQty = (index, delta) => {
-            cart[index].qty += delta;
-            if(cart[index].qty < 1) cart.splice(index, 1);
-            upUI();
-        };
-
-        window.upUI = () => {
-            const total = cart.reduce((s, i) => s + (i.harga * i.qty), 0);
-            const cartEl = document.getElementById('cart');
-            if(cart.length > 0) {
-                cartEl.classList.remove('hidden');
-                document.getElementById('cartTotalText').innerText = priceFmt(total);
-                renderCartDetails();
-            } else { cartEl.classList.add('hidden'); }
-        };
-
-        function renderCartDetails() {
-            const isi = document.getElementById('isiNotaSimpel');
-            isi.innerHTML = "";
-            cart.forEach((item, index) => {
-                isi.innerHTML += `
-                    <div class="flex items-center gap-4 bg-white/5 p-3 rounded-2xl border border-white/5">
-                        <img src="${item.img}" class="w-12 h-12 rounded-lg object-cover border border-white/10">
-                        <div class="flex-1">
-                            <h4 class="text-[11px] font-bold text-white uppercase">${item.nama}</h4>
-                            <p class="text-[9px] text-slate-500 uppercase">${item.sz} | ${priceFmt(item.harga)}</p>
-                        </div>
-                        <div class="flex items-center gap-3 bg-slate-950 px-3 py-1.5 rounded-xl border border-white/10">
-                            <button onclick="changeQty(${index}, -1)" class="text-indigo-400 font-bold px-1">-</button>
-                            <span class="text-xs font-bold text-white w-4 text-center">${item.qty}</span>
-                            <button onclick="changeQty(${index}, 1)" class="text-indigo-400 font-bold px-1">+</button>
-                        </div>
-                    </div>`;
-            });
         }
 
-        window.scrollToCart = () => {
-            if(cart.length > 0) {
-                document.getElementById('cart').scrollIntoView({ behavior: 'smooth' });
-            } else {
-                alert("Keranjang masih kosong, Boss!");
-            }
-        };
-
-        window.resetOrder = () => { if(confirm('Hapus semua pesanan?')) { cart = []; upUI(); } };
-
-        window.sendToWA = () => {
-            let total = 0, msg = `*DJAMANTARA ORDER*%0A━━━━━━━━━━━━━━━━━━━━%0A`;
-            cart.forEach((i, x) => {
-                const sub = i.harga * i.qty; total += sub;
-                msg += `${x+1}. *${i.nama}* (${i.sz})%0A   ${i.qty} x ${i.harga.toLocaleString()} = *Rp ${sub.toLocaleString()}*%0A%0A`;
-            });
-            msg += `━━━━━━━━━━━━━━━━━━━━%0A*TOTAL: Rp ${total.toLocaleString()}*%0A━━━━━━━━━━━━━━━━━━━━`;
-            window.open(`https://wa.me/62895397276430?text=${msg}`, '_blank');
-            cart = []; upUI();
-        };
-
-        window.upPrice = (id, el) => {
-            const pr = el.options[el.selectedIndex].getAttribute('data-price');
-            document.getElementById(`prc-${id}`).innerText = priceFmt(pr);
-        };
-
-        window.searchHandler = () => render(document.getElementById('searchInput').value);
+        function ubahJumlah(change) {
+            const qtyInput = document.getElementById('qty');
+            const totalText = document.getElementById('totalHarga');
+            let currentQty = parseInt(qtyInput.value);
+            
+            currentQty += change;
+            if(currentQty < 1) currentQty = 1; // Minimal 1 barang
+            
+            qtyInput.value = currentQty;
+            
+            // Hitung harga (Contoh statis Rp 7.000)
+            let total = currentQty * 7000;
+            totalText.innerText = "Rp " + total.toLocaleString('id-ID');
+        }
     </script>
 </body>
 </html>
