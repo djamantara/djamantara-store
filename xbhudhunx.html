@@ -3,18 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Djamantara | Control Center</title>
+    <title>Admin Djamantara | Barcode Control</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/html5-qrcode"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Plus Jakarta Sans', sans-serif; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
-        /* Animasi muncul dari bawah */
-        @keyframes slideUp {
-            from { transform: translateY(100%); }
-            to { transform: translateY(0); }
-        }
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
         .animate-up { animation: slideUp 0.3s ease-out; }
+        #reader { border-radius: 1.5rem; overflow: hidden; border: none !important; }
     </style>
 </head>
 <body class="bg-slate-950 text-slate-200 p-4 md:p-8 text-[10px]">
@@ -23,15 +21,21 @@
         <div class="flex justify-between items-center mb-8">
             <div>
                 <h1 class="text-2xl font-black italic tracking-tighter text-blue-400 uppercase">XBHUDHUNX</h1>
-                <p class="text-[8px] font-bold text-slate-500 tracking-[0.2em] uppercase">Djamantara Admin Panel</p>
+                <p class="text-[8px] font-bold text-slate-500 tracking-[0.2em] uppercase">Barcode & Database Panel</p>
             </div>
             <button onclick="window.location.href='index.html'" class="bg-white/5 border border-white/10 px-4 py-2 rounded-xl font-bold uppercase text-[9px]">Toko</button>
+        </div>
+
+        <div class="bg-slate-900 p-4 rounded-[2rem] border border-blue-500/30 mb-6">
+            <h3 class="text-center font-black text-blue-400 mb-3 uppercase italic">Scan Barcode Barang</h3>
+            <div id="reader" class="w-full"></div>
+            <p id="scanResult" class="text-center mt-2 text-[8px] text-slate-500 uppercase font-bold italic">Kamera Siap...</p>
         </div>
 
         <div class="bg-slate-900 p-8 rounded-[3rem] border border-white/5 shadow-2xl mb-24">
             <h2 class="text-xl font-black mb-6 text-white italic uppercase tracking-tighter">Tambah Koleksi</h2>
             <div class="space-y-4">
-                <input type="text" id="nama" placeholder="Nama Produk" class="w-full p-4 rounded-2xl bg-slate-800 border border-slate-700 outline-none text-sm font-bold focus:border-blue-500 text-white">
+                <input type="text" id="nama" placeholder="Nama Produk / Hasil Scan" class="w-full p-4 rounded-2xl bg-slate-800 border border-slate-700 outline-none text-sm font-bold focus:border-blue-500 text-white">
                 
                 <select id="kategori" class="w-full p-4 rounded-2xl bg-slate-800 border border-slate-700 outline-none font-black uppercase text-blue-400 text-[10px]">
                     <option value="Pribadi">Pribadi</option><option value="Profesional">Profesional</option>
@@ -57,7 +61,6 @@
                 <div class="p-5 bg-blue-600/5 rounded-3xl border border-blue-500/20">
                     <label class="block text-[9px] font-black uppercase text-blue-400 mb-2 italic">Opsi Varian (Ukuran:Harga:Stok)</label>
                     <textarea id="stokDetail" placeholder="Contoh: S:50000:10, L:70000:5" class="w-full p-4 h-24 rounded-xl bg-slate-800 border border-slate-700 outline-none text-xs font-mono"></textarea>
-                    <p class="text-[8px] text-slate-500 mt-2 font-bold uppercase italic text-center">*Kosongkan jika barang satuan*</p>
                 </div>
 
                 <button onclick="simpanData()" id="btnSimpan" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-black py-5 rounded-3xl shadow-xl transition-all uppercase tracking-widest active:scale-95 text-xs">Simpan Ke Database 🚀</button>
@@ -75,12 +78,9 @@
                 <h2 class="text-xl font-black italic text-blue-400 uppercase tracking-tighter">Gudang Djamantara</h2>
                 <button onclick="toggleGudang()" class="bg-red-500/10 text-red-500 px-4 py-2 rounded-xl font-black text-[9px] uppercase border border-red-500/20">Tutup</button>
             </div>
-            
             <div class="p-4 flex-1 overflow-y-auto no-scrollbar pb-32">
                 <input type="text" id="cariGudang" oninput="renderGudang()" placeholder="Cari nama produk di gudang..." class="w-full p-4 rounded-2xl bg-slate-900 border border-white/5 outline-none mb-6 text-sm font-bold focus:border-blue-500">
-                
-                <div id="list-data" class="grid grid-cols-1 gap-4">
-                    </div>
+                <div id="list-data" class="grid grid-cols-1 gap-4"></div>
             </div>
         </div>
     </div>
@@ -103,7 +103,18 @@
         const db = getDatabase(app);
         let dataFull = {};
 
-        // FUNGSI SIMPAN (SAMA DENGAN LAMA)
+        // --- LOGIKA SCANNER ---
+        function onScanSuccess(decodedText) {
+            document.getElementById('nama').value = decodedText;
+            document.getElementById('scanResult').innerText = "Terdeteksi: " + decodedText;
+            // Getaran HP jika berhasil scan
+            if (navigator.vibrate) navigator.vibrate(100);
+        }
+
+        let html5QrcodeScanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: 250 });
+        html5QrcodeScanner.render(onScanSuccess);
+
+        // --- LOGIKA DATABASE ---
         window.simpanData = () => {
             const val = (id) => document.getElementById(id).value;
             if(!val('nama')) return alert("Nama produk kosong!");
@@ -121,18 +132,14 @@
             });
         };
 
-        // TOGGLE GUDANG
         window.toggleGudang = () => {
             const ov = document.getElementById('overlayGudang');
             ov.classList.toggle('hidden');
-            if(!ov.classList.contains('hidden')) ov.classList.add('animate-up');
         };
 
-        // RENDER DATA (LOGIKA LAMA DIKEMAS DALAM FUNGSI SEARCH)
         onValue(ref(db, 'produk'), (snap) => {
             dataFull = snap.val();
-            const count = Object.keys(dataFull || {}).length;
-            document.getElementById('countGudang').innerText = count;
+            document.getElementById('countGudang').innerText = Object.keys(dataFull || {}).length;
             renderGudang();
         });
 
@@ -140,7 +147,6 @@
             const cont = document.getElementById('list-data');
             const keyword = document.getElementById('cariGudang').value.toLowerCase();
             cont.innerHTML = "";
-            
             for (let id in dataFull) {
                 const item = dataFull[id];
                 if(item.nama.toLowerCase().includes(keyword)) {
@@ -154,46 +160,28 @@
                                 </div>
                                 <button onclick="delData('${id}')" class="bg-red-500/10 text-red-500 p-2 rounded-lg font-black text-[8px] uppercase border border-red-500/20">Hapus</button>
                             </div>
-
                             <div class="grid grid-cols-2 gap-3">
                                 <div class="bg-slate-950 p-3 rounded-2xl border border-white/5">
-                                    <span class="text-[7px] text-slate-500 uppercase block mb-1">Harga Dasar</span>
                                     <input type="number" id="h-${id}" value="${item.harga}" class="bg-transparent text-blue-400 font-bold outline-none w-full text-xs">
                                 </div>
                                 <div class="bg-slate-950 p-3 rounded-2xl border border-white/5">
-                                    <span class="text-[7px] text-slate-500 uppercase block mb-1">Stok Dasar</span>
                                     <input type="number" id="s-${id}" value="${item.stokDasar}" class="bg-transparent text-green-400 font-bold outline-none w-full text-xs">
                                 </div>
                             </div>
-
-                            <div class="bg-slate-950 p-3 rounded-2xl border border-white/5">
-                                <span class="text-[7px] text-slate-500 uppercase block mb-1">Varian (Size:Harga:Stok)</span>
-                                <input type="text" id="ed-${id}" value="${item.stokDetail}" class="bg-transparent text-slate-300 font-mono outline-none w-full text-[9px]">
-                            </div>
-
-                            <button onclick="upStk('${id}')" class="w-full bg-blue-600/10 text-blue-400 border border-blue-600/20 font-black py-3 rounded-xl uppercase hover:bg-blue-600 hover:text-white transition-all text-[9px]">Update Data</button>
+                            <button onclick="upStk('${id}')" class="w-full bg-blue-600/10 text-blue-400 border border-blue-600/20 font-black py-3 rounded-xl uppercase text-[9px]">Update</button>
                         </div>`;
                 }
             }
         };
 
-        // FUNGSI UPDATE & DELETE (SAMA DENGAN LAMA)
         window.upStk = (id) => {
-            const h = document.getElementById(`h-${id}`).value;
-            const s = document.getElementById(`s-${id}`).value;
-            const v = document.getElementById(`ed-${id}`).value;
             update(ref(db, `produk/${id}`), { 
-                harga: parseInt(h), 
-                stokDasar: parseInt(s), 
-                stokDetail: v 
-            }).then(() => alert("Data di Gudang Berhasil Diperbarui!"));
+                harga: parseInt(document.getElementById(`h-${id}`).value), 
+                stokDasar: parseInt(document.getElementById(`s-${id}`).value) 
+            }).then(() => alert("Terupdate!"));
         };
 
-        window.delData = (id) => {
-            if(confirm("Hapus permanen dari gudang?")) {
-                remove(ref(db, 'produk/' + id));
-            }
-        };
+        window.delData = (id) => { if(confirm("Hapus?")) remove(ref(db, 'produk/' + id)); };
     </script>
 </body>
 </html>
