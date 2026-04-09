@@ -3,25 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Djamantara Store | Bhumie01</title>
+    <title>Djamantara Store</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f8fafc; }
-        .product-card { transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        .product-card:hover { transform: translateY(-8px); }
     </style>
 </head>
-<body class="pb-24">
+<body class="pb-20">
 
-    <div class="bg-blue-600 p-8 rounded-b-[4rem] shadow-2xl text-white mb-10 text-center">
-        <h1 class="text-3xl font-black italic tracking-tighter uppercase leading-none">DJAMANTARA</h1>
-        <p class="text-[10px] font-bold opacity-70 uppercase tracking-[0.4em] mt-2">Bhumie01 Online Store</p>
+    <div class="bg-blue-600 p-8 rounded-b-[3.5rem] shadow-xl text-white mb-8 text-center">
+        <h1 class="text-2xl font-black italic tracking-tighter uppercase">DJAMANTARA</h1>
+        <p class="text-[9px] font-bold opacity-70 uppercase tracking-widest mt-1">Bhumie01 Store</p>
     </div>
 
     <div class="px-6">
-        <div id="shopList" class="grid grid-cols-2 gap-5 md:grid-cols-4 lg:grid-cols-6">
-            <div class="col-span-2 text-center py-10 opacity-20 font-black text-xs uppercase animate-pulse">Menghubungkan ke database...</div>
+        <div id="shopList" class="grid grid-cols-2 gap-4">
+            <div class="col-span-2 text-center py-10 opacity-20 text-[10px] uppercase font-black">Loading Database...</div>
         </div>
     </div>
 
@@ -48,47 +46,36 @@
             container.innerHTML = "";
 
             if(!data) {
-                container.innerHTML = "<div class='col-span-2 text-center py-10 font-bold opacity-30 uppercase text-[10px]'>Gudang Masih Kosong, Boss!</div>";
+                container.innerHTML = "<div class='col-span-2 text-center py-20 opacity-30 font-black uppercase text-[10px]'>Belum ada barang</div>";
                 return;
             }
 
-            for (let id in data) {
+            Object.keys(data).reverse().forEach(id => {
                 const item = data[id];
-                
-                // Pintar Hitung Harga
-                let finalPrice = item.harga || 0;
-                let subLabel = "";
+                let price = item.harga || 0;
+                let sub = "";
 
                 if (item.stokDetail && item.stokDetail.includes(':')) {
                     const variants = item.stokDetail.split(',').map(v => parseInt(v.split(':')[1])).filter(h => !isNaN(h));
                     if (variants.length > 0) {
-                        finalPrice = Math.min(...variants);
-                        subLabel = "<span class='text-[8px] text-slate-400 font-bold uppercase'>Mulai dari</span>";
+                        price = Math.min(...variants);
+                        sub = "<span class='text-[7px] text-slate-400 font-bold uppercase'>Mulai</span>";
                     }
                 }
 
                 container.innerHTML += `
-                    <div class="bg-white rounded-[2.5rem] p-4 shadow-sm border border-slate-100 product-card flex flex-col justify-between">
-                        <div>
-                            <div class="relative w-full aspect-square overflow-hidden rounded-[2rem] mb-4 bg-slate-50 border border-slate-50">
-                                <img src="${item.gambar}" class="w-full h-full object-cover">
-                                <div class="absolute top-3 left-3 bg-blue-600 text-white text-[7px] font-black px-3 py-1.5 rounded-full uppercase shadow-lg">
-                                    ${item.kategori}
-                                </div>
-                            </div>
-                            <div class="px-1">
-                                <h3 class="font-black text-slate-900 text-[11px] uppercase leading-tight mb-2">${item.nama}</h3>
-                                <div class="mb-4">
-                                    ${subLabel}
-                                    <p class="font-black text-blue-600 text-sm leading-none mt-0.5">Rp ${finalPrice.toLocaleString('id-ID')}</p>
-                                </div>
-                            </div>
+                    <div class="bg-white rounded-[2.5rem] p-4 shadow-sm border border-slate-100 flex flex-col">
+                        <div class="relative w-full aspect-square overflow-hidden rounded-[2rem] bg-slate-100 mb-3">
+                            <img src="${item.gambar}" class="w-full h-full object-cover">
                         </div>
-                        <button class="w-full bg-slate-900 text-white font-black py-4 rounded-[1.8rem] text-[9px] uppercase tracking-wider active:scale-95 transition-all shadow-xl shadow-slate-900/10">
-                            Lihat Detail
-                        </button>
+                        <h3 class="font-black text-slate-900 text-[10px] uppercase truncate px-1">${item.nama}</h3>
+                        <div class="mt-1 mb-3 px-1">
+                            ${sub}
+                            <p class="font-black text-blue-600 text-sm leading-none">Rp ${price.toLocaleString('id-ID')}</p>
+                        </div>
+                        <button class="w-full bg-blue-600 text-white font-black py-3 rounded-2xl text-[8px] uppercase active:scale-95 shadow-lg shadow-blue-600/20">BELI</button>
                     </div>`;
-            }
+            });
         });
     </script>
 </body>
