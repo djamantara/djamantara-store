@@ -1,179 +1,47 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Djamantara Menu</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
-    <style>
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f8fafc; }
-        .menu-card { background: white; border-radius: 1.5rem; overflow: hidden; box-shadow: 0 4px 15px -3px rgba(0,0,0,0.07); transition: transform 0.2s; }
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .glass-dark { background: rgba(15, 23, 42, 0.9); backdrop-filter: blur(10px); }
-        @media (max-width: 640px) { .grid-menu { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; } }
-    </style>
-</head>
-<body class="pb-80">
+// Ambil data produk dari Firebase
+onValue(ref(db, 'produk'), (snapshot) => {
+    const data = snapshot.val();
+    const container = document.getElementById('product-container');
+    container.innerHTML = ""; // Bersihkan tampilan lama
 
-    <nav class="bg-blue-600 p-5 sticky top-0 z-50 shadow-lg flex justify-between items-center text-white">
-        <div>
-            <h1 class="text-xl font-black italic tracking-tighter uppercase">DJAMANTARA</h1>
-            <p class="text-[10px] font-bold opacity-80 uppercase tracking-widest">Bhumie01 Store</p>
-        </div>
-        <div class="relative bg-white/20 p-2 rounded-xl">
-            <span class="text-xl">🛒</span>
-            <span id="cartCount" class="absolute -top-2 -right-2 bg-red-500 text-[10px] px-1.5 rounded-full border-2 border-blue-600 font-bold">0</span>
-        </div>
-    </nav>
+    for (let id in data) {
+        const item = data[id];
+        
+        // Logika Harga: Ambil harga utama, jika 0 cari di varian
+        let hargaTampil = item.harga || 0;
+        let labelVarian = "";
 
-    <main class="p-4 max-w-2xl mx-auto">
-        <div class="mb-6 space-y-3">
-            <input type="text" id="searchInput" oninput="render()" placeholder="Cari menu favorit..." class="w-full p-4 rounded-2xl border-none shadow-sm bg-white text-sm outline-none focus:ring-2 focus:ring-blue-400 font-semibold text-slate-700">
-            <div id="categoryContainer" class="flex gap-2 overflow-x-auto no-scrollbar py-1">
-                <button onclick="filterProduk('Semua', this)" class="cat-btn bg-blue-600 text-white px-5 py-2.5 rounded-xl font-bold text-[10px] uppercase whitespace-nowrap shadow-md">Semua</button>
-            </div>
-        </div>
+        // Jika ada data varian (stokDetail), kita ambil harga terkecil untuk ditampilkan
+        if (item.stokDetail) {
+            const varianArray = item.stokDetail.split(',').map(v => v.split(':'));
+            const hargaVarian = varianArray.map(v => parseInt(v[1])).filter(h => !isNaN(h));
+            if (hargaVarian.length > 0) {
+                hargaTampil = Math.min(...hargaVarian);
+                labelVarian = "<span class='text-[8px] text-slate-400'>Mulai dari</span>";
+            }
+        }
 
-        <div id="container" class="grid grid-menu"></div>
-
-        <div id="notaFull" class="fixed inset-0 z-[60] glass-dark flex items-end justify-center hidden">
-            <div class="bg-white w-full max-w-md rounded-t-[3rem] p-6 shadow-2xl animate-bounce-in">
-                <div class="w-12 h-1.5 bg-slate-200 rounded-full mx-auto mb-6"></div>
-                <h2 class="text-xl font-black text-slate-800 mb-6 uppercase italic tracking-tighter">Detail Pesanan</h2>
-                <div id="listDetail" class="space-y-4 max-h-[50vh] overflow-y-auto no-scrollbar mb-6"></div>
-                <button onclick="toggleNota()" class="w-full py-4 border-2 border-slate-100 rounded-2xl font-bold text-slate-400 uppercase text-xs mb-3">Kembali Belanja</button>
-                <button onclick="processCheckout()" class="w-full bg-blue-600 text-white py-5 rounded-2xl font-black text-sm uppercase shadow-xl">BAYAR SEKARANG</button>
-            </div>
-        </div>
-
-        <div id="summarySection" class="fixed bottom-0 left-0 right-0 z-40 p-4 transform translate-y-full transition-transform duration-300">
-            <div class="max-w-md mx-auto bg-white p-6 rounded-t-[2.5rem] shadow-[0_-10px_40px_-15px_rgba(0,0,0,0.2)] border border-slate-100">
-                <div class="flex justify-between items-center mb-4">
-                    <span class="text-lg font-bold text-slate-800">Total: <span id="totalHarga" class="text-blue-600 ml-1">Rp 0</span></span>
-                    <button onclick="toggleNota()" class="bg-blue-50 text-blue-600 px-4 py-2 rounded-xl text-[10px] font-black uppercase">Lihat Nota</button>
+        container.innerHTML += `
+            <div class="bg-white rounded-[2.5rem] p-4 shadow-sm border border-slate-100 flex flex-col gap-3">
+                <div class="relative w-full aspect-square overflow-hidden rounded-[2rem] bg-slate-50">
+                    <img src="${item.gambar}" class="w-full h-full object-cover">
+                    <div class="absolute top-3 left-3 bg-blue-600 text-white text-[7px] font-black px-3 py-1 rounded-full uppercase">
+                        ${item.kategori}
+                    </div>
                 </div>
-                <button onclick="processCheckout()" class="w-full bg-blue-600 text-white py-4 rounded-2xl font-black text-sm uppercase shadow-xl flex justify-center items-center gap-2">
-                    Lanjutkan Pembayaran <span>→</span>
+                
+                <div class="px-2">
+                    <h3 class="font-black text-slate-900 text-[11px] uppercase leading-tight h-8 overflow-hidden">${item.nama}</h3>
+                    <div class="mt-1 flex flex-col">
+                        ${labelVarian}
+                        <p class="font-black text-blue-600 text-sm">Rp ${hargaTampil.toLocaleString('id-ID')}</p>
+                    </div>
+                </div>
+
+                <button onclick="bukaDetail('${id}')" class="w-full bg-slate-900 text-white font-black py-4 rounded-3xl text-[9px] uppercase tracking-wider active:scale-95 transition-all">
+                    Lihat Varian
                 </button>
             </div>
-        </div>
-    </main>
-
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getDatabase, ref, onValue, get, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyCa0EoSNnxgoxezzpzbkSIrEfwZdZc_7h0",
-            authDomain: "djamantara-projeck1.firebaseapp.com",
-            databaseURL: "https://djamantara-projeck1-default-rtdb.asia-southeast1.firebasedatabase.app",
-            projectId: "djamantara-projeck1",
-            storageBucket: "djamantara-projeck1.firebasestorage.app",
-            messagingSenderId: "848439545978",
-            appId: "1:848439545978:web:f4f70991aa43af2f0cabc3"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const db = getDatabase(app);
-        let rawData = {}, cart = [], curFilter = 'Semua', selectedVars = {};
-
-        // Render Kategori Otomatis
-        const categories = ["Pribadi","Profesional","Sosial","Finansial","Logistik","Edukasi","Digital","Kreativitas","Legal","Hiburan"];
-        const catBox = document.getElementById('categoryContainer');
-        categories.forEach(k => {
-            catBox.innerHTML += `<button onclick="filterProduk('${k}', this)" class="cat-btn bg-white text-slate-500 px-5 py-2.5 rounded-xl font-bold text-[10px] uppercase whitespace-nowrap shadow-sm border border-slate-100">${k}</button>`;
-        });
-
-        onValue(ref(db, 'produk'), (snap) => {
-            rawData = snap.val();
-            render();
-        });
-
-        window.filterProduk = (kat, btn) => {
-            curFilter = kat;
-            document.querySelectorAll('.cat-btn').forEach(b => {
-                b.className = "cat-btn bg-white text-slate-500 px-5 py-2.5 rounded-xl font-bold text-[10px] uppercase whitespace-nowrap shadow-sm border border-slate-100";
-            });
-            btn.className = "cat-btn bg-blue-600 text-white px-5 py-2.5 rounded-xl font-bold text-[10px] uppercase whitespace-nowrap shadow-md";
-            render();
-        };
-
-        window.render = () => {
-            const cont = document.getElementById('container');
-            const search = document.getElementById('searchInput').value.toLowerCase();
-            cont.innerHTML = "";
-            for(let id in rawData) {
-                const item = rawData[id];
-                if((curFilter === 'Semua' || item.kategori === curFilter) && item.nama.toLowerCase().includes(search)) {
-                    cont.innerHTML += `
-                        <div class="menu-card p-3 flex flex-col">
-                            <img src="${item.gambar}" class="w-full h-32 object-cover rounded-xl mb-3">
-                            <h4 class="font-extrabold text-[13px] text-slate-800 leading-tight mb-1 h-10 overflow-hidden">${item.nama}</h4>
-                            <p class="text-blue-600 font-black text-sm mb-3">Rp ${item.harga.toLocaleString()}</p>
-                            <button onclick="toCart('${id}')" class="bg-blue-600 text-white text-[10px] px-3 py-2.5 rounded-xl font-black shadow-md active:scale-90 transition-all">TAMBAH KE KERANJANG</button>
-                        </div>`;
-                }
-            }
-            updateSummary();
-        };
-
-        window.toCart = (id) => {
-            const item = rawData[id];
-            const exist = cart.find(c => c.id === id);
-            if(exist) exist.qty += 1;
-            else cart.push({ id, nama: item.nama, harga: item.harga, qty: 1, img: item.gambar });
-            updateSummary();
-        };
-
-        window.toggleNota = () => {
-            document.getElementById('notaFull').classList.toggle('hidden');
-            updateNotaList();
-        };
-
-        function updateNotaList() {
-            const list = document.getElementById('listDetail');
-            list.innerHTML = "";
-            cart.forEach((c, idx) => {
-                list.innerHTML += `
-                    <div class="flex items-center gap-4 bg-slate-50 p-3 rounded-2xl">
-                        <img src="${c.img}" class="w-12 h-12 object-cover rounded-xl">
-                        <div class="flex-1">
-                            <h5 class="text-[10px] font-black uppercase">${c.nama}</h5>
-                            <p class="text-[9px] text-blue-600 font-bold">Rp ${c.harga.toLocaleString()}</p>
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <button onclick="changeQty(${idx}, -1)" class="w-6 h-6 bg-white rounded-lg shadow-sm font-bold text-red-500">-</button>
-                            <span class="text-xs font-black">${c.qty}</span>
-                            <button onclick="changeQty(${idx}, 1)" class="w-6 h-6 bg-white rounded-lg shadow-sm font-bold text-blue-600">+</button>
-                        </div>
-                    </div>`;
-            });
-        }
-
-        window.changeQty = (idx, delta) => {
-            cart[idx].qty += delta;
-            if(cart[idx].qty <= 0) cart.splice(idx, 1);
-            updateSummary();
-            updateNotaList();
-        };
-
-        function updateSummary() {
-            const totalVal = cart.reduce((s, c) => s + (c.harga * c.qty), 0);
-            const totalItem = cart.reduce((s, c) => s + c.qty, 0);
-            document.getElementById('totalHarga').innerText = "Rp " + totalVal.toLocaleString();
-            document.getElementById('cartCount').innerText = totalItem;
-            document.getElementById('summarySection').style.transform = cart.length > 0 ? "translateY(0)" : "translateY(100%)";
-        }
-
-        window.processCheckout = () => {
-            let msg = `*ORDER DJAMANTARA*%0A%0A`;
-            cart.forEach(item => {
-                msg += `- ${item.nama} x${item.qty}%0A`;
-            });
-            const total = document.getElementById('totalHarga').innerText;
-            window.open(`https://wa.me/62895397276430?text=${msg}%0A*TOTAL: ${total}*`, '_blank');
-        };
-    </script>
-</body>
-</html>
+        `;
+    }
+});
