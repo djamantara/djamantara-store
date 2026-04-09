@@ -11,9 +11,7 @@
         .menu-card { background: white; border-radius: 1.5rem; overflow: hidden; box-shadow: 0 4px 15px -3px rgba(0,0,0,0.07); transition: transform 0.2s; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .glass-dark { background: rgba(15, 23, 42, 0.9); backdrop-filter: blur(10px); }
-        @media (max-width: 640px) {
-            .grid-menu { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
-        }
+        @media (max-width: 640px) { .grid-menu { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; } }
     </style>
 </head>
 <body class="pb-80">
@@ -32,13 +30,8 @@
     <main class="p-4 max-w-2xl mx-auto">
         <div class="mb-6 space-y-3">
             <input type="text" id="searchInput" oninput="render()" placeholder="Cari menu favorit..." class="w-full p-4 rounded-2xl border-none shadow-sm bg-white text-sm outline-none focus:ring-2 focus:ring-blue-400 font-semibold text-slate-700">
-            <div class="flex gap-2 overflow-x-auto no-scrollbar py-1">
+            <div id="categoryContainer" class="flex gap-2 overflow-x-auto no-scrollbar py-1">
                 <button onclick="filterProduk('Semua', this)" class="cat-btn bg-blue-600 text-white px-5 py-2.5 rounded-xl font-bold text-[10px] uppercase whitespace-nowrap shadow-md">Semua</button>
-                <script>
-                    ["Pribadi","Profesional","Sosial","Finansial","Logistik","Edukasi","Digital","Kreativitas","Legal","Hiburan"].forEach(k => {
-                        document.write(`<button onclick="filterProduk('${k}', this)" class="cat-btn bg-white text-slate-500 px-5 py-2.5 rounded-xl font-bold text-[10px] uppercase whitespace-nowrap shadow-sm border border-slate-100">${k}</button>`);
-                    });
-                </script>
             </div>
         </div>
 
@@ -85,6 +78,13 @@
         const db = getDatabase(app);
         let rawData = {}, cart = [], curFilter = 'Semua', selectedVars = {};
 
+        // Render Kategori Otomatis
+        const categories = ["Pribadi","Profesional","Sosial","Finansial","Logistik","Edukasi","Digital","Kreativitas","Legal","Hiburan"];
+        const catBox = document.getElementById('categoryContainer');
+        categories.forEach(k => {
+            catBox.innerHTML += `<button onclick="filterProduk('${k}', this)" class="cat-btn bg-white text-slate-500 px-5 py-2.5 rounded-xl font-bold text-[10px] uppercase whitespace-nowrap shadow-sm border border-slate-100">${k}</button>`;
+        });
+
         onValue(ref(db, 'produk'), (snap) => {
             rawData = snap.val();
             render();
@@ -92,7 +92,9 @@
 
         window.filterProduk = (kat, btn) => {
             curFilter = kat;
-            document.querySelectorAll('.cat-btn').forEach(b => b.className = "cat-btn bg-white text-slate-500 px-5 py-2.5 rounded-xl font-bold text-[10px] uppercase whitespace-nowrap shadow-sm border border-slate-100");
+            document.querySelectorAll('.cat-btn').forEach(b => {
+                b.className = "cat-btn bg-white text-slate-500 px-5 py-2.5 rounded-xl font-bold text-[10px] uppercase whitespace-nowrap shadow-sm border border-slate-100";
+            });
             btn.className = "cat-btn bg-blue-600 text-white px-5 py-2.5 rounded-xl font-bold text-[10px] uppercase whitespace-nowrap shadow-md";
             render();
         };
@@ -101,88 +103,33 @@
             const cont = document.getElementById('container');
             const search = document.getElementById('searchInput').value.toLowerCase();
             cont.innerHTML = "";
-
             for(let id in rawData) {
                 const item = rawData[id];
                 if((curFilter === 'Semua' || item.kategori === curFilter) && item.nama.toLowerCase().includes(search)) {
-                    
-                    let hasVar = item.stokDetail && item.stokDetail.includes(':');
-                    let currentVar = selectedVars[id] || (hasVar ? item.stokDetail.split(',')[0].split(':')[0] : "Normal");
-                    
-                    // Hitung harga berdasar varian terpilih
-                    let price = item.harga;
-                    if(hasVar) {
-                        const match = item.stokDetail.split(',').find(v => v.trim().startsWith(currentVar));
-                        if(match) price = parseInt(match.split(':')[1]);
-                    }
-
-                    let controls = "";
-                    if (hasVar) {
-                        controls = `<select onchange="updateVarSelection('${id}', this)" class="w-full bg-slate-50 border-none rounded-lg p-2 text-[10px] font-bold text-blue-600 outline-none mb-2">`;
-                        item.stokDetail.split(',').forEach(v => {
-                            const [sz, pr, qt] = v.trim().split(':');
-                            const inCart = cart.find(c => c.id === id && c.sz === sz)?.qty || 0;
-                            const sisa = parseInt(qt) - inCart;
-                            if(sisa > 0) controls += `<option value="${sz}" ${sz === currentVar ? 'selected' : ''}>${sz} (Rp ${parseInt(pr).toLocaleString()})</option>`;
-                        });
-                        controls += `</select>`;
-                    }
-
-                    const totalInCart = cart.filter(c => c.id === id).reduce((s, c) => s + c.qty, 0);
-
                     cont.innerHTML += `
                         <div class="menu-card p-3 flex flex-col">
                             <img src="${item.gambar}" class="w-full h-32 object-cover rounded-xl mb-3">
                             <h4 class="font-extrabold text-[13px] text-slate-800 leading-tight mb-1 h-10 overflow-hidden">${item.nama}</h4>
-                            <p class="text-blue-600 font-black text-sm mb-3">Rp ${price.toLocaleString()}</p>
-                            ${controls}
-                            <div class="flex items-center gap-2">
-                                <button onclick="toCart('${id}')" class="bg-blue-600 text-white text-[10px] px-3 py-2.5 rounded-xl font-black flex-1 shadow-md active:scale-90 transition-all">PESAN</button>
-                                <div class="flex items-center bg-blue-50 rounded-xl p-1">
-                                    <span class="px-2 text-xs font-black text-blue-600">${totalInCart}</span>
-                                </div>
-                            </div>
+                            <p class="text-blue-600 font-black text-sm mb-3">Rp ${item.harga.toLocaleString()}</p>
+                            <button onclick="toCart('${id}')" class="bg-blue-600 text-white text-[10px] px-3 py-2.5 rounded-xl font-black shadow-md active:scale-90 transition-all">TAMBAH KE KERANJANG</button>
                         </div>`;
                 }
             }
             updateSummary();
         };
 
-        window.updateVarSelection = (id, el) => {
-            selectedVars[id] = el.value;
-            render(); // Render ulang agar harga di kartu berubah mengikuti pilihan dropdown
-        };
-
         window.toCart = (id) => {
             const item = rawData[id];
-            const sz = selectedVars[id] || (item.stokDetail ? item.stokDetail.split(',')[0].split(':')[0] : "Normal");
-            
-            let pr = item.harga, mx = item.stokDasar;
-            if(item.stokDetail && item.stokDetail.includes(':')) {
-                const match = item.stokDetail.split(',').find(v => v.trim().startsWith(sz));
-                pr = parseInt(match.split(':')[1]);
-                mx = parseInt(match.split(':')[2]);
-            }
-
-            const exist = cart.find(c => c.id === id && c.sz === sz);
-            if(exist) {
-                if(exist.qty < mx) exist.qty += 1; else alert("Stok Habis!");
-            } else {
-                cart.push({ id, nama: item.nama, harga: pr, sz, qty: 1, max: mx, img: item.gambar });
-            }
-            render();
+            const exist = cart.find(c => c.id === id);
+            if(exist) exist.qty += 1;
+            else cart.push({ id, nama: item.nama, harga: item.harga, qty: 1, img: item.gambar });
+            updateSummary();
         };
 
-        window.changeQty = (idx, delta) => {
-            cart[idx].qty += delta;
-            if(cart[idx].qty > cart[idx].max) { cart[idx].qty = cart[idx].max; alert("Stok Maksimal!"); }
-            if(cart[idx].qty <= 0) cart.splice(idx, 1);
-            if(cart.length === 0) document.getElementById('notaFull').classList.add('hidden');
-            render();
+        window.toggleNota = () => {
+            document.getElementById('notaFull').classList.toggle('hidden');
             updateNotaList();
         };
-
-        window.toggleNota = () => document.getElementById('notaFull').classList.toggle('hidden') || updateNotaList();
 
         function updateNotaList() {
             const list = document.getElementById('listDetail');
@@ -190,19 +137,26 @@
             cart.forEach((c, idx) => {
                 list.innerHTML += `
                     <div class="flex items-center gap-4 bg-slate-50 p-3 rounded-2xl">
-                        <img src="${c.img}" class="w-16 h-16 object-cover rounded-xl">
+                        <img src="${c.img}" class="w-12 h-12 object-cover rounded-xl">
                         <div class="flex-1">
-                            <h5 class="text-xs font-black text-slate-800 uppercase">${c.nama}</h5>
-                            <p class="text-[10px] text-blue-600 font-bold">${c.sz} | Rp ${c.harga.toLocaleString()}</p>
+                            <h5 class="text-[10px] font-black uppercase">${c.nama}</h5>
+                            <p class="text-[9px] text-blue-600 font-bold">Rp ${c.harga.toLocaleString()}</p>
                         </div>
-                        <div class="flex items-center bg-white rounded-lg shadow-sm border border-slate-100">
-                            <button onclick="changeQty(${idx}, -1)" class="w-8 h-8 font-bold text-slate-400">-</button>
-                            <span class="px-2 text-xs font-black">${c.qty}</span>
-                            <button onclick="changeQty(${idx}, 1)" class="w-8 h-8 font-bold text-blue-600">+</button>
+                        <div class="flex items-center gap-2">
+                            <button onclick="changeQty(${idx}, -1)" class="w-6 h-6 bg-white rounded-lg shadow-sm font-bold text-red-500">-</button>
+                            <span class="text-xs font-black">${c.qty}</span>
+                            <button onclick="changeQty(${idx}, 1)" class="w-6 h-6 bg-white rounded-lg shadow-sm font-bold text-blue-600">+</button>
                         </div>
                     </div>`;
             });
         }
+
+        window.changeQty = (idx, delta) => {
+            cart[idx].qty += delta;
+            if(cart[idx].qty <= 0) cart.splice(idx, 1);
+            updateSummary();
+            updateNotaList();
+        };
 
         function updateSummary() {
             const totalVal = cart.reduce((s, c) => s + (c.harga * c.qty), 0);
@@ -212,27 +166,13 @@
             document.getElementById('summarySection').style.transform = cart.length > 0 ? "translateY(0)" : "translateY(100%)";
         }
 
-        window.processCheckout = async () => {
+        window.processCheckout = () => {
             let msg = `*ORDER DJAMANTARA*%0A%0A`;
-            try {
-                for (let item of cart) {
-                    const snap = await get(ref(db, `produk/${item.id}`));
-                    const current = snap.val();
-                    if(item.sz === "Normal") {
-                        await update(ref(db, `produk/${item.id}`), { stokDasar: current.stokDasar - item.qty });
-                    } else {
-                        let newArr = current.stokDetail.split(',').map(v => {
-                            let p = v.trim().split(':');
-                            return p[0] === item.sz ? `${p[0]}:${p[1]}:${parseInt(p[2]) - item.qty}` : v.trim();
-                        });
-                        await update(ref(db, `produk/${item.id}`), { stokDetail: newArr.join(', ') });
-                    }
-                    msg += `- ${item.nama} (${item.sz}) x${item.qty}%0A`;
-                }
-                window.open(`https://wa.me/62895397276430?text=${msg}%0A*TOTAL: ${document.getElementById('totalHarga').innerText}*`, '_blank');
-                cart = []; render();
-                document.getElementById('notaFull').classList.add('hidden');
-            } catch (e) { alert("Error Database!"); }
+            cart.forEach(item => {
+                msg += `- ${item.nama} x${item.qty}%0A`;
+            });
+            const total = document.getElementById('totalHarga').innerText;
+            window.open(`https://wa.me/62895397276430?text=${msg}%0A*TOTAL: ${total}*`, '_blank');
         };
     </script>
 </body>
