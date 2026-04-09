@@ -3,37 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Djamantara | Anti-Storage Version</title>
+    <title>Admin Djamantara | Jalur Tikus V2</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pica/9.2.0/pica.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
-    <style>
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #020617; color: white; }
-        #loadingOverlay { background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(10px); }
-    </style>
 </head>
-<body class="p-4 md:p-8 text-[10px]">
+<body class="bg-slate-950 text-white p-6 font-sans">
 
-    <div id="loadingOverlay" class="fixed inset-0 z-[100] hidden flex flex-col items-center justify-center gap-4">
-        <div class="w-16 h-16 border-4 border-t-blue-600 border-slate-700 rounded-full animate-spin"></div>
-        <p class="text-[9px] font-black uppercase animate-pulse text-blue-400">Proses Kilat Tanpa Storage...</p>
+    <div id="loading" class="fixed inset-0 bg-black/90 z-50 hidden flex flex-col items-center justify-center">
+        <div class="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+        <p class="mt-4 text-[10px] font-bold uppercase tracking-widest text-blue-400">Sedang Menembus Database...</p>
     </div>
 
-    <div class="max-w-xl mx-auto">
-        <h1 class="text-2xl font-black italic tracking-tighter text-blue-400 uppercase mb-8">XBHUDHUNX <span class="text-white opacity-50 text-xs font-normal">v2.0</span></h1>
-
-        <div class="bg-slate-900 p-8 rounded-[3rem] border border-white/5 shadow-2xl space-y-4">
-            <input type="text" id="nama" placeholder="NAMA BARANG" class="w-full p-4 rounded-2xl bg-slate-800 border border-slate-700 outline-none font-bold">
-            <input type="number" id="harga" placeholder="HARGA" class="w-full p-4 rounded-2xl bg-slate-800 border border-slate-700 outline-none font-bold">
+    <div class="max-w-md mx-auto space-y-6">
+        <h1 class="text-xl font-black italic text-blue-500">D JAMANTARA ADMIN</h1>
+        
+        <div class="space-y-4 bg-slate-900 p-6 rounded-3xl border border-white/5">
+            <input type="text" id="nama" placeholder="Nama Barang" class="w-full p-4 rounded-xl bg-slate-800 outline-none text-sm">
+            <input type="number" id="harga" placeholder="Harga" class="w-full p-4 rounded-xl bg-slate-800 outline-none text-sm">
             
-            <div class="p-5 bg-slate-950 rounded-3xl border border-white/5 flex flex-col items-center gap-4">
-                <label class="text-[9px] uppercase font-black text-blue-400">Foto Produk (Auto-Compress)</label>
-                <input type="file" id="fileGambar" accept="image/*" class="hidden" onchange="preview(this)">
-                <button type="button" onclick="document.getElementById('fileGambar').click()" class="bg-blue-600 text-white px-8 py-3 rounded-xl font-black uppercase text-[9px]">Ambil Foto</button>
-                <img id="imagePreview" src="" class="w-40 h-40 object-cover rounded-2xl hidden border-4 border-blue-600/20">
+            <div class="border-2 border-dashed border-slate-700 p-6 rounded-xl text-center">
+                <input type="file" id="foto" accept="image/*" class="hidden" onchange="preview(this)">
+                <button onclick="document.getElementById('foto').click()" class="bg-blue-600 px-6 py-2 rounded-lg text-[10px] font-bold">PILIH FOTO</button>
+                <img id="view" class="mt-4 w-full hidden rounded-lg shadow-xl">
             </div>
 
-            <button onclick="simpanKeDatabase()" class="w-full bg-blue-600 py-5 rounded-3xl font-black uppercase tracking-widest text-[11px] shadow-lg shadow-blue-900/20">Simpan Sekarang 🚀</button>
+            <button onclick="gas()" class="w-full bg-green-600 py-4 rounded-xl font-black text-xs uppercase">SIMPAN SEKARANG</button>
         </div>
     </div>
 
@@ -43,69 +36,57 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getDatabase, ref, push } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-        // CONFIG TETAP SAMA
-        const firebaseConfig = {
-            apiKey: "AIzaSyCa0EoSNnxgoxezzpzbkSIrEfwZdZc_7h0",
-            authDomain: "djamantara-projeck1.firebaseapp.com",
-            databaseURL: "https://djamantara-projeck1-default-rtdb.asia-southeast1.firebasedatabase.app",
-            projectId: "djamantara-projeck1",
-            appId: "1:848439545978:web:f4f70991aa43af2f0cabc3"
+        const config = {
+            databaseURL: "https://djamantara-projeck1-default-rtdb.asia-southeast1.firebasedatabase.app"
         };
 
-        const app = initializeApp(firebaseConfig);
+        const app = initializeApp(config);
         const db = getDatabase(app);
 
         window.preview = (input) => {
             const reader = new FileReader();
             reader.onload = (e) => {
-                document.getElementById('imagePreview').src = e.target.result;
-                document.getElementById('imagePreview').classList.remove('hidden');
+                document.getElementById('view').src = e.target.result;
+                document.getElementById('view').classList.remove('hidden');
             };
             reader.readAsDataURL(input.files[0]);
         };
 
-        window.simpanKeDatabase = async () => {
-            const file = document.getElementById('fileGambar').files[0];
+        window.gas = async () => {
             const nama = document.getElementById('nama').value;
             const harga = document.getElementById('harga').value;
-            const loading = document.getElementById('loadingOverlay');
+            const file = document.getElementById('foto').files[0];
+            const load = document.getElementById('loading');
 
-            if(!nama || !file) return alert("Isi Nama & Foto!");
-            loading.classList.remove('hidden');
+            if(!nama || !file) return alert("Nama & Foto harus ada!");
+            load.classList.remove('hidden');
 
             try {
-                // PROSES KOMPRESI EXTREME (Agar bisa masuk database teks)
                 const img = new Image();
                 img.src = URL.createObjectURL(file);
                 await new Promise(r => img.onload = r);
 
-                const canvas = document.getElementById('canvas');
-                const ctx = canvas.getContext('2d');
+                const can = document.getElementById('canvas');
+                const ctx = can.getContext('2d');
+                // Kecilkan ke 400px agar super ringan
+                can.width = 400;
+                can.height = (img.height / img.width) * 400;
+                ctx.drawImage(img, 0, 0, can.width, can.height);
                 
-                // Perkecil ke 500px saja (cukup untuk HP)
-                const scale = 500 / Math.max(img.width, img.height);
-                canvas.width = img.width * scale;
-                canvas.height = img.height * scale;
-                
-                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                
-                // Ubah gambar jadi teks (Base64) dengan kualitas rendah (0.5) agar ringan
-                const fotoTeks = canvas.toDataURL('image/jpeg', 0.5);
+                const base64 = can.toDataURL('image/jpeg', 0.6);
 
-                // SIMPAN LANGSUNG KE DATABASE
                 await push(ref(db, 'produk'), {
                     nama: nama,
                     harga: parseInt(harga),
-                    gambar: fotoTeks, // Ini rahasianya: Gambar jadi teks!
-                    waktu: Date.now()
+                    gambar: base64
                 });
 
-                alert("SUKSES! Data masuk tanpa Storage berbayar! 🦾");
+                alert("BERHASIL JEBOL! 🚀");
                 location.reload();
             } catch (e) {
-                alert("Gagal: " + e.message);
+                alert("Macet: " + e.message);
             } finally {
-                loading.classList.add('hidden');
+                load.classList.add('hidden');
             }
         };
     </script>
