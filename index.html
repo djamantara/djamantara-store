@@ -8,89 +8,92 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root { --accent: #6366f1; }
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #020617; color: #cbd5e1; display: flex; flex-direction: column; min-h-screen; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #020617; color: #cbd5e1; display: flex; flex-direction: column; min-height: 100vh; }
         
-        /* Gaya Khusus untuk Header agar mirip referensi */
-        .pink-header { background-color: #f63a8a; } /* Warna pink referensi */
+        /* Header Gelap */
+        .dark-header { background-color: #0f172a; border-bottom: 1px solid rgba(255,255,255,0.05); }
         
         .glass-card { background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255,255,255,0.05); }
         
-        .product-card { transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1); }
-        .product-card:hover { transform: translateY(-5px); border-color: var(--accent); box-shadow: 0 10px 25px -5px rgba(99, 102, 241, 0.2); }
+        .product-card { transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1); position: relative; }
+        .product-card:hover { transform: translateY(-5px); border-color: var(--accent); }
         
-        .img-gradient { background: linear-gradient(to bottom, transparent 70%, rgba(2, 6, 23, 0.8)); }
+        .img-gradient { background: linear-gradient(to bottom, transparent 50%, rgba(2, 6, 23, 0.9)); }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         
         .btn-primary { background: var(--accent); transition: all 0.3s; }
         .btn-primary:hover { filter: brightness(1.1); transform: scale(1.02); }
         
-        /* Gaya Struk (Live Receipt) di bagian bawah agar mirip referensi */
-        .live-receipt { border-top: 1px dashed rgba(255,255,255,0.15); background-color: rgba(2, 6, 23, 0.8); backdrop-filter: blur(10px); }
-        
-        .receipt-dashed-line { border-bottom: 2px dashed rgba(255,255,255,0.1); }
+        /* Struk / Checkout Area */
+        .live-receipt { 
+            border-top: 1px solid rgba(255,255,255,0.1); 
+            background-color: rgba(15, 23, 42, 0.95); 
+            backdrop-filter: blur(15px); 
+        }
+
+        /* Label nama di tengah gambar */
+        .product-title-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 85%;
+            text-align: center;
+            pointer-events: none;
+        }
     </style>
 </head>
-<body class="pb-[180px]"> <header class="pink-header sticky top-0 z-[60] py-5 px-6 shadow-md text-white text-center">
+<body class="pb-[200px]"> 
+
+    <header class="dark-header sticky top-0 z-[60] py-6 px-6 shadow-xl text-white text-center">
         <h1 class="text-3xl font-extrabold italic tracking-tighter uppercase leading-none">Djamantara</h1>
-        <p class="text-[9px] font-bold tracking-[0.2em] uppercase opacity-80 mt-1">Premium Supply</p>
+        <p class="text-[9px] font-bold tracking-[0.2em] uppercase opacity-60 mt-1">Premium Supply</p>
         
-        <button onclick="resetOrder()" class="mt-4 inline-flex items-center gap-2 bg-white text-[#f63a8a] px-6 py-2.5 rounded-full font-bold text-[11px] uppercase whitespace-nowrap shadow hover:bg-slate-50 active:scale-95">
+        <button onclick="scrollToCart()" class="mt-4 inline-flex items-center gap-2 bg-indigo-600 text-white px-8 py-2.5 rounded-full font-bold text-[11px] uppercase whitespace-nowrap shadow-lg hover:bg-indigo-500 active:scale-95 transition-all">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
             </svg>
-            Reset Pesanan
+            Bayar Pesanan
         </button>
     </header>
 
-    <div class="sticky top-[110px] z-[50] bg-slate-950/80 backdrop-blur-sm border-b border-white/5 py-4 px-6 mb-8">
+    <div class="sticky top-[125px] z-[50] bg-slate-950/80 backdrop-blur-sm border-b border-white/5 py-4 px-6 mb-8">
         <div class="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div class="flex items-center gap-3 overflow-x-auto no-scrollbar pb-1">
-                <button onclick="filterProduk('Semua', this)" class="cat-btn bg-indigo-600 text-white px-6 py-2 rounded-xl font-bold text-[11px] uppercase whitespace-nowrap shadow-md shadow-indigo-600/20">Semua</button>
-                <button onclick="filterProduk('Pribadi', this)" class="cat-btn glass-card px-6 py-2 rounded-xl text-[11px] font-bold uppercase text-slate-400 whitespace-nowrap hover:bg-white/5">Pribadi</button>
-                <button onclick="filterProduk('Profesional', this)" class="cat-btn glass-card px-6 py-2 rounded-xl text-[11px] font-bold uppercase text-slate-400 whitespace-nowrap hover:bg-white/5">Profesional</button>
-                <button onclick="filterProduk('Digital', this)" class="cat-btn glass-card px-6 py-2 rounded-xl text-[11px] font-bold uppercase text-slate-400 whitespace-nowrap hover:bg-white/5">Digital</button>
+                <button onclick="filterProduk('Semua', this)" class="cat-btn bg-indigo-600 text-white px-6 py-2 rounded-xl font-bold text-[11px] uppercase whitespace-nowrap">Semua</button>
+                <button onclick="filterProduk('Pribadi', this)" class="cat-btn glass-card px-6 py-2 rounded-xl text-[11px] font-bold uppercase text-slate-400 whitespace-nowrap">Pribadi</button>
+                <button onclick="filterProduk('Profesional', this)" class="cat-btn glass-card px-6 py-2 rounded-xl text-[11px] font-bold uppercase text-slate-400 whitespace-nowrap">Profesional</button>
             </div>
-            
-            <input type="text" id="searchInput" onkeyup="searchHandler()" placeholder="Cari produk..." 
-                class="bg-slate-900 border border-white/10 rounded-xl py-2 px-5 outline-none text-xs font-medium md:w-64 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all">
+            <input type="text" id="searchInput" onkeyup="searchHandler()" placeholder="Cari produk..." class="bg-slate-900 border border-white/10 rounded-xl py-2 px-5 outline-none text-xs md:w-64 focus:border-indigo-500">
         </div>
     </div>
 
     <main class="flex-1 max-w-7xl mx-auto px-6 mb-12">
-        <div id="container" class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+        <div id="container" class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             </div>
     </main>
 
-    <div id="cart" class="fixed bottom-0 left-0 right-0 z-[80] live-receipt px-6 py-4 shadow-2xl hidden">
-        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
-            <div id="isiNotaSimpel" class="flex-1 w-full space-y-2 max-h-[110px] overflow-y-auto no-scrollbar pr-2 text-slate-400 text-xs">
+    <div id="cart" class="fixed bottom-0 left-0 right-0 z-[80] live-receipt px-6 py-5 shadow-2xl hidden">
+        <div class="max-w-7xl mx-auto">
+            <h2 class="text-[10px] font-black uppercase tracking-[0.3em] text-indigo-400 mb-4 text-center">Rincian Belanja Anda</h2>
+            
+            <div id="isiNotaSimpel" class="space-y-3 max-h-[150px] overflow-y-auto no-scrollbar mb-6">
                 </div>
 
-            <div class="w-full md:w-auto flex-shrink-0">
-                <div class="flex items-end justify-between md:justify-end gap-12 mb-3">
-                    <button onclick="sendToWA()" class="btn-primary flex items-center gap-2.5 px-7 py-3 rounded-2xl font-bold text-[11px] uppercase text-white shadow-lg shadow-indigo-600/20 active:scale-95">
+            <div class="flex flex-col md:flex-row justify-between items-center gap-4 border-t border-white/10 pt-4">
+                <div class="text-center md:text-left">
+                    <p class="text-[9px] font-bold uppercase text-slate-500 tracking-wider">Total Pembayaran</p>
+                    <p class="font-bold text-3xl tracking-tighter text-white" id="cartTotalText">Rp 0</p>
+                </div>
+                
+                <div class="flex gap-3 w-full md:w-auto">
+                    <button onclick="resetOrder()" class="flex-1 bg-slate-800 text-slate-400 px-6 py-3 rounded-2xl font-bold text-[11px] uppercase hover:bg-red-900/20 hover:text-red-500 transition-all">Reset</button>
+                    <button onclick="sendToWA()" class="flex-[2] btn-primary flex items-center justify-center gap-2.5 px-8 py-3 rounded-2xl font-bold text-[11px] uppercase text-white shadow-lg shadow-indigo-600/20">
                         Checkout WA
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                            <path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd" />
-                        </svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
                     </button>
-                    
-                    <div class="text-right">
-                        <p class="text-[9px] font-bold uppercase text-slate-500 tracking-wider mb-0.5">Total Akhir</p>
-                        <p class="receipt-dashed-line inline-block"></p>
-                        <p class="font-bold text-3xl tracking-tighter text-white" id="cartTotalText">Rp 0</p>
-                    </div>
                 </div>
             </div>
-        </div>
-    </div>
-
-    <div id="modalHelp" class="fixed inset-0 z-[100] bg-black/90 backdrop-blur-md flex items-center justify-center hidden p-4">
-        <div class="bg-slate-900 border border-white/10 p-8 rounded-3xl max-w-lg w-full relative">
-            <button onclick="toggleModal('modalHelp')" class="absolute top-5 right-5 text-slate-500 hover:text-white">&times;</button>
-            <h2 class="text-xl font-bold text-white uppercase mb-4">Pusat Bantuan</h2>
-            <p class="text-sm text-slate-400 mb-2">Halo Boss! Jika ada kendala pemesanan, silakan hubungi kami:</p>
-            <p class="font-bold text-indigo-400">WhatsApp Admin: 0895397276430</p>
         </div>
     </div>
 
@@ -104,7 +107,6 @@
             databaseURL: "https://djamantara-projeck1-default-rtdb.asia-southeast1.firebasedatabase.app",
             projectId: "djamantara-projeck1",
             storageBucket: "djamantara-projeck1.firebasestorage.app",
-            messagingSenderId: "848439545978",
             appId: "1:848439545978:web:f4f70991aa43af2f0cabc3"
         };
 
@@ -114,17 +116,12 @@
 
         onValue(ref(db, 'produk'), (snap) => { rawData = snap.val(); render(); });
 
-        window.toggleModal = (id) => {
-            const el = document.getElementById(id);
-            el.classList.toggle('hidden');
-        };
-
         window.filterProduk = (kat, btn) => {
             curFilter = kat;
             document.querySelectorAll('.cat-btn').forEach(b => {
-                b.className = "cat-btn glass-card px-6 py-2 rounded-xl text-[11px] font-bold uppercase text-slate-400 whitespace-nowrap hover:bg-white/5 transition-all";
+                b.className = "cat-btn glass-card px-6 py-2 rounded-xl text-[11px] font-bold uppercase text-slate-400 whitespace-nowrap transition-all";
             });
-            btn.className = "cat-btn bg-indigo-600 text-white px-6 py-2 rounded-xl font-bold text-[11px] uppercase whitespace-nowrap shadow-md shadow-indigo-600/20 transition-all";
+            btn.className = "cat-btn bg-indigo-600 text-white px-6 py-2 rounded-xl font-bold text-[11px] uppercase whitespace-nowrap transition-all";
             render();
         };
 
@@ -141,9 +138,8 @@
                     
                     if (item.stokDetail) {
                         const vList = item.stokDetail.split(',');
-                        const firstPrice = vList[0].split(':')[1];
-                        iniPrice = parseInt(firstPrice);
-                        varHtml = `<select id="sel-${id}" onchange="upPrice('${id}', this)" class="w-full mb-3 p-2.5 rounded-lg bg-slate-950 border border-white/10 text-[10px] font-bold uppercase text-indigo-400 outline-none focus:border-indigo-500">`;
+                        iniPrice = parseInt(vList[0].split(':')[1]);
+                        varHtml = `<select id="sel-${id}" onchange="upPrice('${id}', this)" class="w-full mb-3 p-2 rounded-lg bg-slate-950 border border-white/5 text-[9px] font-bold uppercase text-indigo-400 outline-none">`;
                         vList.forEach(v => {
                             const [sz, pr, qt] = v.split(':');
                             if(parseInt(qt) > 0) varHtml += `<option value="${sz.trim()}" data-price="${pr.trim()}">${sz.trim()} — ${priceFmt(pr.trim())}</option>`;
@@ -152,25 +148,24 @@
                     }
 
                     cont.innerHTML += `
-                        <div class="product-card glass-card rounded-2xl overflow-hidden flex flex-col h-full relative">
-                            <div class="relative overflow-hidden group aspect-[5/4]">
-                                <img src="${item.gambar}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
+                        <div class="product-card glass-card rounded-2xl overflow-hidden flex flex-col h-full">
+                            <div class="relative aspect-square overflow-hidden group">
+                                <img src="${item.gambar}" class="w-full h-full object-cover opacity-60 group-hover:scale-110 transition-transform duration-700">
                                 <div class="absolute inset-0 img-gradient"></div>
-                                <div class="absolute top-3 right-3">
-                                    <span class="bg-black/40 backdrop-blur-md px-2.5 py-1 rounded-full text-[8px] font-black uppercase tracking-widest text-white/80 border border-white/10">
-                                        ${item.kategori}
-                                    </span>
+                                
+                                <div class="product-title-overlay">
+                                    <h3 class="text-[10px] font-black text-white uppercase tracking-wider leading-tight drop-shadow-lg bg-black/20 py-1 px-2 rounded">
+                                        ${item.nama}
+                                    </h3>
                                 </div>
                             </div>
-                            <div class="p-4 flex flex-col flex-1">
-                                <h3 class="text-sm font-bold text-white mb-1.5 uppercase tracking-tight leading-tight">${item.nama}</h3>
-                                <p id="prc-${id}" class="text-white font-extrabold text-base tracking-tighter mb-4">${priceFmt(iniPrice)}</p>
-                                
-                                <div class="mt-auto space-y-3">
+
+                            <div class="p-4 flex flex-col flex-1 text-center">
+                                <p id="prc-${id}" class="text-white font-extrabold text-sm mb-3">${priceFmt(iniPrice)}</p>
+                                <div class="mt-auto">
                                     ${varHtml}
-                                    <button onclick="${item.tersedia ? `toCart('${id}')` : ''}" 
-                                        class="w-full text-center py-2.5 rounded-xl transition-all ${item.tersedia ? 'bg-indigo-600 text-white hover:bg-indigo-500 shadow-lg shadow-indigo-600/10 active:scale-95' : 'bg-slate-800 text-slate-500 cursor-not-allowed'}">
-                                        <span class="text-[10px] font-bold uppercase">${item.tersedia ? '+ Order' : 'Habis'}</span>
+                                    <button onclick="toCart('${id}')" class="w-full py-2.5 rounded-xl bg-indigo-600 text-white text-[10px] font-bold uppercase active:scale-95 transition-all">
+                                        + Tambah
                                     </button>
                                 </div>
                             </div>
@@ -179,17 +174,12 @@
             }
         };
 
-        window.upPrice = (id, el) => {
-            const pr = el.options[el.selectedIndex].getAttribute('data-price');
-            document.getElementById(`prc-${id}`).innerText = priceFmt(pr);
-        };
-
         window.toCart = (id) => {
             const el = document.getElementById(`sel-${id}`);
             const pr = el ? parseInt(el.options[el.selectedIndex].getAttribute('data-price')) : rawData[id].harga;
             const sz = el ? el.value : '-';
             const exist = cart.find(i => i.id === id && i.sz === sz);
-            if(exist) { exist.qty += 1; } else { cart.push({ id, nama: rawData[id].nama, harga: pr, sz, qty: 1 }); }
+            if(exist) { exist.qty += 1; } else { cart.push({ id, nama: rawData[id].nama, harga: pr, sz, qty: 1, img: rawData[id].gambar }); }
             upUI();
         };
 
@@ -199,57 +189,60 @@
             upUI();
         };
 
-        window.resetOrder = () => {
-            if (confirm('Boss, yakin mau reset semua pesanan?')) {
-                cart = [];
-                upUI();
-            }
-        }
-
-        function upUI() {
+        window.upUI = () => {
             const total = cart.reduce((s, i) => s + (i.harga * i.qty), 0);
             const cartEl = document.getElementById('cart');
-            
             if(cart.length > 0) {
                 cartEl.classList.remove('hidden');
                 document.getElementById('cartTotalText').innerText = priceFmt(total);
-                renderSimpleReceipt();
-            } else {
-                cartEl.classList.add('hidden');
-            }
-        }
+                renderCartDetails();
+            } else { cartEl.classList.add('hidden'); }
+        };
 
-        // Render Struk simpel di area troli bawah agar mirip referensi
-        function renderSimpleReceipt() {
+        function renderCartDetails() {
             const isi = document.getElementById('isiNotaSimpel');
             isi.innerHTML = "";
             cart.forEach((item, index) => {
-                const sub = item.harga * item.qty;
                 isi.innerHTML += `
-                    <div class="flex items-center justify-between gap-3 bg-white/5 px-3 py-1.5 rounded-lg border border-white/5">
+                    <div class="flex items-center gap-4 bg-white/5 p-3 rounded-2xl border border-white/5">
+                        <img src="${item.img}" class="w-12 h-12 rounded-lg object-cover border border-white/10">
                         <div class="flex-1">
-                            <span class="font-bold text-white">${item.nama}</span> 
-                            <span class="opacity-70">(${item.sz}) x${item.qty}</span>
+                            <h4 class="text-[11px] font-bold text-white uppercase">${item.nama}</h4>
+                            <p class="text-[9px] text-slate-500 uppercase">${item.sz} | ${priceFmt(item.harga)}</p>
                         </div>
-                        <div class="text-right flex items-center gap-2">
-                            <span>${priceFmt(sub)}</span>
-                            <button onclick="changeQty(${index}, -1)" class="text-red-500/80 hover:text-red-400">&times;</button>
+                        <div class="flex items-center gap-3 bg-slate-950 px-3 py-1.5 rounded-xl border border-white/10">
+                            <button onclick="changeQty(${index}, -1)" class="text-indigo-400 font-bold px-1">-</button>
+                            <span class="text-xs font-bold text-white w-4 text-center">${item.qty}</span>
+                            <button onclick="changeQty(${index}, 1)" class="text-indigo-400 font-bold px-1">+</button>
                         </div>
                     </div>`;
             });
         }
 
+        window.scrollToCart = () => {
+            if(cart.length > 0) {
+                document.getElementById('cart').scrollIntoView({ behavior: 'smooth' });
+            } else {
+                alert("Keranjang masih kosong, Boss!");
+            }
+        };
+
+        window.resetOrder = () => { if(confirm('Hapus semua pesanan?')) { cart = []; upUI(); } };
+
         window.sendToWA = () => {
-            let total = 0;
-            let msg = `*DJAMANTARA OFFICIAL STORE*%0A━━━━━━━━━━━━━━━━━━━━%0A`;
+            let total = 0, msg = `*DJAMANTARA ORDER*%0A━━━━━━━━━━━━━━━━━━━━%0A`;
             cart.forEach((i, x) => {
-                const sub = i.harga * i.qty;
-                total += sub;
-                msg += `${x+1}. *${i.nama}*%0A   Varian: ${i.sz}%0A   Qty: ${i.qty} x ${i.harga.toLocaleString()}%0A   Sub: *Rp ${sub.toLocaleString()}*%0A%0A`;
+                const sub = i.harga * i.qty; total += sub;
+                msg += `${x+1}. *${i.nama}* (${i.sz})%0A   ${i.qty} x ${i.harga.toLocaleString()} = *Rp ${sub.toLocaleString()}*%0A%0A`;
             });
-            msg += `━━━━━━━━━━━━━━━━━━━━%0A*TOTAL TAGIHAN: Rp ${total.toLocaleString()}*%0A━━━━━━━━━━━━━━━━━━━━%0A_Mohon segera diproses ya, Admin!_`;
+            msg += `━━━━━━━━━━━━━━━━━━━━%0A*TOTAL: Rp ${total.toLocaleString()}*%0A━━━━━━━━━━━━━━━━━━━━`;
             window.open(`https://wa.me/62895397276430?text=${msg}`, '_blank');
             cart = []; upUI();
+        };
+
+        window.upPrice = (id, el) => {
+            const pr = el.options[el.selectedIndex].getAttribute('data-price');
+            document.getElementById(`prc-${id}`).innerText = priceFmt(pr);
         };
 
         window.searchHandler = () => render(document.getElementById('searchInput').value);
