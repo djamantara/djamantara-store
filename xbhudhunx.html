@@ -3,9 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Djamantara | Pro Fix Version</title>
+    <title>Admin Djamantara | Control Center</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/html5-qrcode"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pica/9.2.0/pica.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #020617; }
@@ -18,75 +19,68 @@
 
     <div id="loadingOverlay" class="fixed inset-0 z-[100] hidden flex flex-col items-center justify-center gap-4">
         <div class="w-16 h-16 border-4 border-t-blue-600 border-slate-700 rounded-full animate-spin"></div>
-        <p class="text-[9px] font-black uppercase text-blue-400 animate-pulse">Sinkronisasi Database...</p>
+        <p class="text-[9px] font-black uppercase text-white animate-pulse text-center">Mengompres Gambar &<br>Menyimpan Data...</p>
     </div>
 
     <div class="max-w-xl mx-auto">
         <div class="flex justify-between items-center mb-8">
-            <div>
-                <h1 class="text-2xl font-black italic tracking-tighter text-blue-400 uppercase leading-none">XBHUDHUNX</h1>
-                <p class="text-[7px] font-bold text-slate-500 tracking-[0.3em] uppercase">Varian & Price Fixed</p>
-            </div>
+            <h1 class="text-2xl font-black italic text-blue-400 uppercase leading-none">XBHUDHUNX</h1>
             <button onclick="window.location.href='index.html'" class="bg-white/5 border border-white/10 px-4 py-2 rounded-xl font-bold uppercase text-[9px]">View Shop</button>
         </div>
 
         <div class="bg-slate-900/50 p-4 rounded-[2.5rem] border border-white/5 mb-6">
             <div id="reader" class="w-full bg-black"></div>
             <div class="flex justify-center gap-2 mt-4">
-                <button onclick="mulaiKamera()" class="bg-blue-600 hover:bg-blue-500 text-white px-6 py-3 rounded-2xl font-black uppercase text-[9px]">Kamera</button>
-                <button onclick="stopKamera()" class="bg-slate-800 text-white px-6 py-3 rounded-2xl font-black uppercase text-[9px]">Off</button>
+                <button onclick="mulaiKamera()" class="bg-blue-600 text-white px-6 py-3 rounded-2xl font-black uppercase text-[9px]">Buka Kamera</button>
+                <button onclick="stopKamera()" class="bg-slate-800 text-white px-6 py-3 rounded-2xl font-black uppercase text-[9px]">Matikan</button>
             </div>
-            <p id="scanResult" class="text-center mt-3 text-[7px] text-blue-500 uppercase font-black">Status: Scanner Ready</p>
         </div>
 
         <div class="bg-slate-900 p-8 rounded-[3rem] border border-white/5 shadow-2xl mb-24">
-            <h2 class="text-xl font-black mb-6 text-white italic uppercase tracking-tighter decoration-blue-500 underline-offset-8 text-center">Update Stok Baru</h2>
-            
             <div class="space-y-4">
-                <input type="text" id="nama" placeholder="NAMA BARANG" class="w-full p-4 rounded-2xl bg-slate-800 border border-slate-700 outline-none text-sm font-bold text-white">
-                <input type="text" id="barcode" placeholder="KODE BARCODE (SCAN)" class="w-full p-4 rounded-2xl bg-slate-950 border border-blue-500/30 outline-none text-sm font-mono text-blue-400 font-bold" readonly>
+                <input type="text" id="nama" placeholder="Nama Produk..." class="w-full p-4 rounded-2xl bg-slate-800 border border-slate-700 outline-none text-sm font-bold text-white focus:border-blue-500">
+                
+                <input type="text" id="barcode" placeholder="Barcode (Hasil Scan)..." class="w-full p-4 rounded-2xl bg-slate-950 border border-blue-500/30 outline-none text-sm font-mono text-blue-400 font-bold" readonly>
                 
                 <div class="grid grid-cols-2 gap-3">
-                    <input type="text" id="harga" placeholder="HARGA (Cth: 15000)" class="w-full p-4 rounded-2xl bg-slate-800 border border-slate-700 outline-none font-bold text-white">
-                    <input type="number" id="stokDasar" placeholder="STOK TOTAL" class="w-full p-4 rounded-2xl bg-slate-800 border border-slate-700 outline-none font-bold text-white">
+                    <input type="number" id="harga" placeholder="Harga Utama" class="w-full p-4 rounded-2xl bg-slate-800 border border-slate-700 text-white font-bold">
+                    <input type="number" id="stokDasar" placeholder="Stok Utama" class="w-full p-4 rounded-2xl bg-slate-800 border border-slate-700 text-white font-bold">
                 </div>
 
-                <div class="p-5 bg-blue-600/5 rounded-3xl border border-blue-500/20">
-                    <label class="block text-[9px] font-black uppercase text-blue-400 mb-2 italic">Data Varian (Penting!)</label>
-                    <textarea id="stokDetail" placeholder="Contoh: XL:5000:10, L:3000:5" class="w-full p-4 h-20 rounded-xl bg-slate-800 border border-slate-700 outline-none text-xs font-mono text-slate-300"></textarea>
-                    <p class="text-[6px] text-slate-500 mt-2 uppercase font-bold">Format: NamaVarian : HargaTambah : Stok</p>
+                <div class="p-4 bg-blue-600/5 rounded-3xl border border-blue-500/20">
+                    <label class="text-[8px] font-black text-blue-400 uppercase italic">Varian (Ukuran:Harga:Stok)</label>
+                    <textarea id="stokDetail" placeholder="Kecil:5000:10, Besar:10000:5" class="w-full p-3 h-16 bg-transparent outline-none text-[10px] text-slate-300 font-mono mt-2 no-scrollbar"></textarea>
+                    <p class="text-[6px] text-slate-500 mt-1 uppercase">*Gunakan titik dua (:) dan koma (,)</p>
                 </div>
 
-                <div class="space-y-1 p-5 bg-slate-950 rounded-3xl border border-white/5 flex flex-col items-center">
+                <div class="p-5 bg-slate-950 rounded-3xl border border-white/5 text-center">
                     <input type="file" id="fileGambar" accept="image/*" class="hidden" onchange="previewGambar(this)">
-                    <button type="button" onclick="document.getElementById('fileGambar').click()" class="bg-blue-600/10 text-blue-400 border border-blue-500/20 px-6 py-3 rounded-xl font-bold uppercase text-[8px]">Upload Foto</button>
-                    <img id="imagePreview" src="" class="mt-4 w-32 h-32 object-cover rounded-2xl hidden">
+                    <button type="button" onclick="document.getElementById('fileGambar').click()" class="bg-blue-600/20 text-blue-400 border border-blue-500/30 px-6 py-3 rounded-xl font-black uppercase text-[8px]">Pilih Foto Produk</button>
+                    <img id="imagePreview" src="" class="mt-4 w-32 h-32 mx-auto object-cover rounded-2xl border-4 border-white/5 hidden">
                 </div>
 
                 <select id="kategori" class="w-full p-4 rounded-2xl bg-slate-800 border border-slate-700 font-black uppercase text-blue-400 text-[10px]">
-                    <option value="Pribadi">Pribadi</option><option value="Profesional">Profesional</option>
-                    <option value="Logistik">Logistik</option><option value="Digital">Digital</option>
+                    <option value="Pribadi">Pribadi</option>
+                    <option value="Profesional">Profesional</option>
+                    <option value="Digital">Digital</option>
                 </select>
 
-                <button onclick="simpanData()" class="w-full bg-blue-600 py-5 rounded-3xl font-black uppercase text-[10px] mt-4">GAS SIMPAN 🚀</button>
+                <button onclick="simpanData()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-black py-5 rounded-3xl shadow-xl uppercase text-[10px] mt-4 transition-all active:scale-95">Simpan Koleksi 🚀</button>
             </div>
         </div>
 
         <div class="fixed bottom-6 left-0 right-0 px-6 z-40 text-center">
             <button onclick="toggleGudang()" class="w-full max-w-md mx-auto bg-slate-100 text-slate-900 py-5 rounded-full shadow-2xl font-black text-[10px] uppercase border-4 border-blue-500">
-                📦 CEK GUDANG (<span id="countGudang">0</span>)
+                📦 LIHAT STATUS GUDANG (<span id="countGudang">0</span>)
             </button>
         </div>
 
         <div id="overlayGudang" class="fixed inset-0 z-50 bg-slate-950 hidden flex flex-col">
-            <div class="p-6 border-b border-white/5 flex justify-between items-center bg-slate-900">
-                <h2 class="text-xl font-black italic text-blue-400 uppercase">Inventory List</h2>
-                <button onclick="toggleGudang()" class="bg-red-500 text-white px-4 py-2 rounded-xl font-black text-[9px]">CLOSE</button>
+            <div class="p-6 bg-slate-900 border-b border-white/5 flex justify-between items-center text-white">
+                <h2 class="font-black uppercase italic tracking-tighter">Inventory List</h2>
+                <button onclick="toggleGudang()" class="bg-red-500 px-4 py-2 rounded-xl text-[9px] font-black uppercase">Tutup</button>
             </div>
-            <div class="p-4 flex-1 overflow-y-auto no-scrollbar pb-32">
-                <input type="text" id="cariGudang" oninput="renderGudang()" placeholder="Cari..." class="w-full p-5 rounded-2xl bg-slate-900 border border-blue-500/20 outline-none mb-6 text-sm text-white">
-                <div id="list-data" class="grid grid-cols-1 gap-4"></div>
-            </div>
+            <div class="p-4 flex-1 overflow-y-auto no-scrollbar pb-32" id="list-data"></div>
         </div>
     </div>
 
@@ -95,127 +89,74 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getDatabase, ref, push, onValue, remove, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
-        
+        import { getStorage, ref as sRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
+
         const firebaseConfig = {
-            databaseURL: "https://djamantara-projeck1-default-rtdb.asia-southeast1.firebasedatabase.app"
+            apiKey: "AIzaSyCa0EoSNnxgoxezzpzbkSIrEfwZdZc_7h0",
+            authDomain: "djamantara-projeck1.firebaseapp.com",
+            databaseURL: "https://djamantara-projeck1-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "djamantara-projeck1",
+            storageBucket: "djamantara-projeck1.firebasestorage.app",
+            messagingSenderId: "848439545978",
+            appId: "1:848439545978:web:f4f70991aa43af2f0cabc3"
         };
 
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
+        const storage = getStorage(app);
         let dataFull = {}, html5QrCode;
 
-        // FUNGSI BERSIHKAN ANGKA (Supaya tidak jadi Nol)
-        const bersihAngka = (str) => {
-            if(!str) return 0;
-            return parseInt(str.toString().replace(/[^0-9]/g, '')) || 0;
-        };
-
-        window.previewGambar = (input) => {
-            const preview = document.getElementById('imagePreview');
-            const reader = new FileReader();
-            reader.onload = (e) => { preview.src = e.target.result; preview.classList.remove('hidden'); };
-            reader.readAsDataURL(input.files[0]);
-        };
-
-        window.mulaiKamera = () => {
-            html5QrCode = new Html5Qrcode("reader");
-            html5QrCode.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, (text) => {
-                document.getElementById('barcode').value = text;
-            }).catch(err => alert("Kamera Error"));
-        };
-
-        window.stopKamera = () => { if (html5QrCode) html5QrCode.stop().then(() => html5QrCode.clear()); };
+        window.previewGambar = (i) => { if(i.files[0]){ const r=new FileReader(); r.onload=(e)=>{ const p=document.getElementById('imagePreview'); p.src=e.target.result; p.classList.remove('hidden'); }; r.readAsDataURL(i.files[0]); } };
+        window.mulaiKamera = () => { html5QrCode = new Html5Qrcode("reader"); html5QrCode.start({ facingMode: "environment" }, { fps: 20, qrbox: 200 }, (t) => { document.getElementById('barcode').value = t; }); };
+        window.stopKamera = () => { if(html5QrCode) html5QrCode.stop().then(() => html5QrCode.clear()); };
 
         window.simpanData = async () => {
             const val = (id) => document.getElementById(id).value;
             const file = document.getElementById('fileGambar').files[0];
             const loading = document.getElementById('loadingOverlay');
+            if(!val('nama') || !file) return alert("Wajib Isi Nama & Foto!");
 
-            if(!val('nama') || !file) return alert("Nama & Foto Wajib!");
             loading.classList.remove('hidden');
-
             try {
-                const img = new Image();
-                img.src = URL.createObjectURL(file);
-                await new Promise(r => img.onload = r);
+                const img = new Image(); img.src = URL.createObjectURL(file); await new Promise(r => img.onload = r);
+                const max = 1024; let w = img.width, h = img.height;
+                if(w > max || h > max) { if(w>h){h=Math.round(h*max/w);w=max;}else{w=Math.round(w*max/h);h=max;} }
+                const canvas = document.createElement('canvas'); canvas.width = img.width; canvas.height = img.height;
+                canvas.getContext('2d').drawImage(img, 0, 0);
+                const comp = document.getElementById('compCanvas'); comp.width = w; comp.height = h;
+                await pica().resize(canvas, comp);
+                const blob = await pica().toBlob(comp, 'image/jpeg', 0.8);
 
-                const canvas = document.getElementById('compCanvas');
-                const ctx = canvas.getContext('2d');
-                canvas.width = 500; canvas.height = (img.height / img.width) * 500;
-                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                
+                const storageRef = sRef(storage, 'foto_produk/img_' + Date.now() + '.jpg');
+                const snap = await uploadBytes(storageRef, blob);
+                const url = await getDownloadURL(snap.ref);
+
                 await push(ref(db, 'produk'), {
-                    nama: val('nama'),
-                    barcode: val('barcode') || "No Code",
-                    harga: bersihAngka(val('harga')), // PERBAIKAN HARGA
-                    stokDasar: bersihAngka(val('stokDasar')),
-                    stokDetail: val('stokDetail'), // DATA VARIAN
-                    kategori: val('kategori'),
-                    gambar: canvas.toDataURL('image/jpeg', 0.6),
-                    tersedia: true,
-                    waktu: Date.now()
+                    nama: val('nama'), barcode: val('barcode') || "No Code",
+                    harga: parseInt(val('harga')) || 0, stokDasar: parseInt(val('stokDasar')) || 0,
+                    stokDetail: val('stokDetail') || "", kategori: val('kategori'), gambar: url, tersedia: true
                 });
-
-                loading.classList.add('hidden');
-                alert("SUKSES MASUK DATABASE! 🚀");
-                location.reload();
-            } catch (e) { alert(e.message); loading.classList.add('hidden'); }
+                alert("Berhasil!"); location.reload();
+            } catch (e) { alert(e); } finally { loading.classList.add('hidden'); }
         };
 
         window.toggleGudang = () => document.getElementById('overlayGudang').classList.toggle('hidden');
-
-        onValue(ref(db, 'produk'), (snap) => {
-            dataFull = snap.val();
-            document.getElementById('countGudang').innerText = Object.keys(dataFull || {}).length;
-            renderGudang();
-        });
-
+        onValue(ref(db, 'produk'), (s) => { dataFull = s.val(); document.getElementById('countGudang').innerText = Object.keys(dataFull||{}).length; renderGudang(); });
         window.renderGudang = () => {
-            const cont = document.getElementById('list-data');
-            const key = document.getElementById('cariGudang').value.toLowerCase();
-            cont.innerHTML = "";
-            for (let id in dataFull) {
-                const item = dataFull[id];
-                if(item.nama.toLowerCase().includes(key)) {
-                    cont.innerHTML += `
-                        <div class="bg-slate-900 p-5 rounded-[2.5rem] border border-white/5 flex flex-col gap-4 shadow-xl">
-                            <div class="flex items-center gap-4">
-                                <img src="${item.gambar}" class="w-12 h-12 object-cover rounded-2xl bg-black">
-                                <div class="flex-1">
-                                    <p class="text-white font-black uppercase text-[10px]">${item.nama}</p>
-                                    <p class="text-blue-500 font-bold text-[7px]">${item.barcode}</p>
-                                </div>
-                                <button onclick="delData('${id}')" class="text-red-500 text-[8px] font-black">HAPUS</button>
-                            </div>
-                            <div class="grid grid-cols-2 gap-2">
-                                <div class="bg-slate-950 p-3 rounded-2xl border border-white/5">
-                                    <label class="text-[6px] text-slate-500 uppercase block">Harga</label>
-                                    <input type="text" id="h-${id}" value="${item.harga}" class="bg-transparent text-blue-400 font-bold w-full outline-none">
-                                </div>
-                                <div class="bg-slate-950 p-3 rounded-2xl border border-white/5">
-                                    <label class="text-[6px] text-slate-500 uppercase block">Stok</label>
-                                    <input type="number" id="s-${id}" value="${item.stokDasar}" class="bg-transparent text-green-400 font-bold w-full outline-none">
-                                </div>
-                            </div>
-                            <div class="p-3 bg-slate-950 rounded-2xl border border-white/5">
-                                <label class="text-[6px] text-slate-500 uppercase block">Varian Detail</label>
-                                <textarea id="sd-${id}" class="bg-transparent text-slate-300 font-mono w-full text-[9px] outline-none h-12">${item.stokDetail || ''}</textarea>
-                            </div>
-                            <button onclick="upStk('${id}')" class="w-full bg-blue-600/10 text-blue-400 border border-blue-600/20 py-3 rounded-2xl uppercase text-[8px] font-black">UPDATE DATA</button>
-                        </div>`;
-                }
+            const list = document.getElementById('list-data'); list.innerHTML = "";
+            for(let id in dataFull){
+                const i = dataFull[id];
+                list.innerHTML += `<div class="bg-slate-900 p-5 rounded-3xl border border-white/5 mb-4 flex items-center gap-4">
+                    <img src="${i.gambar}" class="w-12 h-12 object-cover rounded-2xl bg-black">
+                    <div class="flex-1">
+                        <p class="font-black uppercase text-white">${i.nama}</p>
+                        <p class="text-blue-500 font-bold text-[7px]">${i.barcode}</p>
+                    </div>
+                    <button onclick="delData('${id}')" class="text-red-500 font-black text-[8px] bg-red-500/10 px-3 py-2 rounded-xl">HAPUS</button>
+                </div>`;
             }
         };
-
-        window.upStk = (id) => {
-            update(ref(db, `produk/${id}`), {
-                harga: bersihAngka(document.getElementById(`h-${id}`).value),
-                stokDasar: bersihAngka(document.getElementById(`s-${id}`).value),
-                stokDetail: document.getElementById(`sd-${id}`).value
-            }).then(() => alert("UPDATE BERHASIL!"));
-        };
-
-        window.delData = (id) => { if(confirm("Hapus?")) remove(ref(db, 'produk/' + id)); };
+        window.delData = (id) => { if(confirm("Hapus?")) remove(ref(db, 'produk/'+id)); };
     </script>
 </body>
 </html>
