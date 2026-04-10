@@ -7,43 +7,33 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
-        /* Dark Theme Background */
         body { 
             font-family: 'Plus Jakarta Sans', sans-serif; 
-            background-color: #0f172a; /* Slate 900 */
+            background-color: #0f172a; 
             color: #f1f5f9;
         }
-
-        /* Menu Card Dark Mode & Glow Effect */
         .menu-card { 
-            background: #1e293b; /* Slate 800 */
+            background: #1e293b; 
             border-radius: 1.5rem; 
             overflow: hidden; 
             border: 1px solid rgba(255,255,255,0.05);
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
         }
-
-        /* Efek Bias saat diklik */
         .menu-card:active {
             transform: scale(0.97);
-            box-shadow: 0 0 20px 2px rgba(37, 99, 235, 0.5); /* Bias Biru Binhur */
+            box-shadow: 0 0 20px 2px rgba(37, 99, 235, 0.5); 
             border-color: #2563eb;
         }
-
         .no-scrollbar::-webkit-scrollbar { display: none; }
-        
         .glass-dark { 
             background: rgba(0, 0, 0, 0.8); 
             backdrop-filter: blur(12px); 
         }
-
-        /* Input & Select Custom Dark */
         input, select {
             background-color: #1e293b !important;
             color: white !important;
             border: 1px solid #334155 !important;
         }
-
         @media (max-width: 640px) {
             .grid-menu { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
         }
@@ -147,9 +137,17 @@
                     let currentVar = selectedVars[id] || (hasVar ? item.stokDetail.split(',')[0].split(':')[0] : "Normal");
                     
                     let price = item.harga;
+                    let isOutOfStock = false;
+
                     if(hasVar) {
                         const match = item.stokDetail.split(',').find(v => v.trim().startsWith(currentVar));
-                        if(match) price = parseInt(match.split(':')[1]);
+                        if(match) {
+                            const [sz, pr, qt] = match.trim().split(':');
+                            price = parseInt(pr);
+                            if(parseInt(qt) <= 0) isOutOfStock = true;
+                        }
+                    } else {
+                        if(parseInt(item.stokDasar) <= 0) isOutOfStock = true;
                     }
 
                     let controls = "";
@@ -157,9 +155,7 @@
                         controls = `<select onchange="updateVarSelection('${id}', this)" class="w-full rounded-lg p-2 text-[10px] font-bold text-blue-400 outline-none mb-2">`;
                         item.stokDetail.split(',').forEach(v => {
                             const [sz, pr, qt] = v.trim().split(':');
-                            const inCart = cart.find(c => c.id === id && c.sz === sz)?.qty || 0;
-                            const sisa = parseInt(qt) - inCart;
-                            if(sisa > 0) controls += `<option value="${sz}" ${sz === currentVar ? 'selected' : ''}>${sz} (Rp ${parseInt(pr).toLocaleString()})</option>`;
+                            controls += `<option value="${sz}" ${sz === currentVar ? 'selected' : ''}>${sz} (Stok: ${qt})</option>`;
                         });
                         controls += `</select>`;
                     }
@@ -167,13 +163,16 @@
                     const totalInCart = cart.filter(c => c.id === id).reduce((s, c) => s + c.qty, 0);
 
                     cont.innerHTML += `
-                        <div class="menu-card p-3 flex flex-col">
-                            <img src="${item.gambar}" class="w-full h-32 object-cover rounded-xl mb-3">
+                        <div class="menu-card p-3 flex flex-col ${isOutOfStock ? 'opacity-60' : ''}">
+                            <img src="${item.gambar}" class="w-full h-32 object-cover rounded-xl mb-3 ${isOutOfStock ? 'grayscale' : ''}">
                             <h4 class="font-extrabold text-[13px] text-slate-100 leading-tight mb-1 h-10 overflow-hidden">${item.nama}</h4>
                             <p class="text-blue-400 font-black text-sm mb-3">Rp ${price.toLocaleString()}</p>
                             ${controls}
                             <div class="flex items-center gap-2">
-                                <button onclick="toCart('${id}')" class="bg-blue-600 text-white text-[10px] px-3 py-2.5 rounded-xl font-black flex-1 shadow-md active:scale-95 transition-all">PESAN</button>
+                                <button onclick="${isOutOfStock ? "alert('Maaf, stok varian ini habis!')" : `toCart('${id}')`}" 
+                                        class="${isOutOfStock ? 'bg-slate-600 cursor-not-allowed' : 'bg-blue-600 active:scale-95'} text-white text-[10px] px-3 py-2.5 rounded-xl font-black flex-1 shadow-md transition-all">
+                                    ${isOutOfStock ? 'HABIS' : 'PESAN'}
+                                </button>
                                 <div class="flex items-center bg-blue-600/20 rounded-xl p-1">
                                     <span class="px-2 text-xs font-black text-blue-400">${totalInCart}</span>
                                 </div>
@@ -198,6 +197,11 @@
                 const match = item.stokDetail.split(',').find(v => v.trim().startsWith(sz));
                 pr = parseInt(match.split(':')[1]);
                 mx = parseInt(match.split(':')[2]);
+            }
+
+            if(mx <= 0) {
+                alert("Stok varian ini kosong!");
+                return;
             }
 
             const exist = cart.find(c => c.id === id && c.sz === sz);
