@@ -3,131 +3,101 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Djamantara Menu</title>
+    <title>Admin Djamantara | Control Center</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
-        body { 
-            font-family: 'Plus Jakarta Sans', sans-serif; 
-            background-color: #0f172a; 
-            color: #f1f5f9;
-        }
-        .menu-card { 
-            background: #1e293b; 
-            border-radius: 1.5rem; 
-            overflow: hidden; 
-            border: 1px solid rgba(255,255,255,0.05);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
-        }
-        .menu-card:active {
-            transform: scale(0.97);
-            box-shadow: 0 0 20px 2px rgba(37, 99, 235, 0.5); 
-            border-color: #2563eb;
-        }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #020617; color: #f1f5f9; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
-        .glass-dark { 
-            background: rgba(0, 0, 0, 0.8); 
-            backdrop-filter: blur(12px); 
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
         }
-        input, select {
+        .animate-up { animation: slideUp 0.3s ease-out; }
+        input, select, textarea {
             background-color: #1e293b !important;
             color: white !important;
             border: 1px solid #334155 !important;
         }
-        @media (max-width: 640px) {
-            .grid-menu { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
-        }
     </style>
 </head>
-<body class="pb-80">
+<body class="p-4 md:p-8 text-[10px] pb-20">
 
-    <nav class="bg-blue-600 p-5 sticky top-0 z-50 shadow-xl flex justify-between items-center text-white">
-        <div>
-            <h1 class="text-xl font-black italic tracking-tighter uppercase">DJAMANTARA</h1>
-            <p class="text-[10px] font-bold opacity-80 uppercase tracking-widest">Bhumie01 Store</p>
+    <div class="max-w-xl mx-auto">
+        <div class="flex justify-between items-center mb-8">
+            <div>
+                <h1 class="text-2xl font-black italic tracking-tighter text-blue-400 uppercase">DJAMANTARA</h1>
+                <p class="text-[8px] font-bold text-slate-500 tracking-[0.2em] uppercase">Control Center Admin</p>
+            </div>
+            <div class="flex gap-2">
+                <button onclick="toggleGudang()" class="bg-blue-600/20 border border-blue-500/30 text-blue-400 px-4 py-2 rounded-xl font-bold uppercase text-[9px]">Gudang</button>
+                <button onclick="window.location.href='index.html'" class="bg-white/5 border border-white/10 px-4 py-2 rounded-xl font-bold uppercase text-[9px]">Toko</button>
+            </div>
         </div>
-        <div class="relative bg-white/20 p-2 rounded-xl">
-            <span class="text-xl">🛒</span>
-            <span id="cartCount" class="absolute -top-2 -right-2 bg-red-500 text-[10px] px-1.5 rounded-full border-2 border-blue-600 font-bold">0</span>
-        </div>
-    </nav>
 
-    <main class="p-4 max-w-2xl mx-auto">
-        <div class="bg-slate-800/50 p-6 rounded-[2rem] border border-slate-700 mb-8 space-y-4">
-            <h2 class="text-lg font-black uppercase italic tracking-tighter text-center">Tambah Koleksi</h2>
+        <div class="bg-slate-900 p-6 md:p-8 rounded-[3rem] border border-white/5 shadow-2xl mb-10">
+            <h2 class="text-xl font-black mb-6 text-white italic uppercase tracking-tighter text-center">Tambah Koleksi</h2>
             
-            <input type="text" id="namaBaru" placeholder="Nama Produk" class="w-full p-4 rounded-2xl outline-none font-semibold">
-            
-            <select id="katBaru" class="w-full p-4 rounded-2xl outline-none font-semibold">
-                <option value="Pribadi">Pribadi</option>
-                <option value="Profesional">Profesional</option>
+            <div class="space-y-4">
+                <input type="text" id="nama" placeholder="Nama Produk" class="w-full p-4 rounded-2xl outline-none text-sm font-bold focus:border-blue-500">
+                
+                <select id="kategori" class="w-full p-4 rounded-2xl outline-none font-black uppercase text-blue-400 text-[10px]">
+                    <option value="Pribadi">Pribadi</option><option value="Profesional">Profesional</option>
+                    <option value="Sosial">Sosial</option><option value="Finansial">Finansial</option>
+                    <option value="Logistik">Logistik</option><option value="Edukasi">Edukasi</option>
+                    <option value="Digital">Digital</option><option value="Kreativitas">Kreativitas</option>
+                    <option value="Legal">Legal</option><option value="Hiburan">Hiburan</option>
                 </select>
 
-            <div class="grid grid-cols-2 gap-3">
-                <input type="number" id="hargaBaru" placeholder="Harga Dasar" class="p-4 rounded-2xl outline-none font-semibold">
-                <input type="number" id="stokBaru" placeholder="Stok Dasar" class="p-4 rounded-2xl outline-none font-semibold">
-            </div>
-
-            <div class="space-y-2">
-                <input type="file" id="gambarInput" accept="image/*" onchange="handleImageUpload(this)" class="hidden">
-                <label for="gambarInput" id="labelGambar" class="w-full p-4 rounded-2xl bg-slate-900 border border-slate-700 flex items-center justify-between cursor-pointer hover:border-blue-600 transition-all">
-                    <span id="statusUpload" class="text-sm text-slate-400 font-semibold">Pilih Foto Galeri...</span>
-                    <span class="bg-blue-600 px-3 py-1.5 rounded-xl text-[10px] font-black uppercase">UPLOAD</span>
-                </label>
-                <input type="hidden" id="fotoData"> <div id="previewContainer" class="hidden mt-2 p-2 bg-slate-900 rounded-2xl border border-slate-700">
-                    <img id="imgPreview" src="" class="w-full h-32 object-cover rounded-xl">
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="space-y-1">
+                        <label class="text-[8px] uppercase font-bold text-slate-500 ml-2">Harga Dasar</label>
+                        <input type="number" id="harga" placeholder="0" class="w-full p-4 rounded-2xl outline-none font-bold text-blue-400">
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-[8px] uppercase font-bold text-slate-500 ml-2">Stok Dasar</label>
+                        <input type="number" id="stokDasar" placeholder="0" class="w-full p-4 rounded-2xl outline-none font-bold text-green-400">
+                    </div>
                 </div>
-            </div>
 
-            <textarea id="varianBaru" placeholder="Contoh: S:50000:10, L:70000:5" class="w-full p-4 rounded-2xl bg-slate-800 border border-slate-700 text-white outline-none min-h-[100px] text-xs font-bold" spellcheck="false"></textarea>
-            
-            <button onclick="saveToDB()" class="w-full bg-blue-600 py-4 rounded-2xl font-black text-sm uppercase shadow-xl active:scale-95 transition-all">Simpan ke Database 🚀</button>
-        </div>
-
-        <hr class="border-slate-800 mb-8">
-
-        <div class="mb-6 space-y-3">
-            <input type="text" id="searchInput" oninput="render()" placeholder="Cari menu favorit..." 
-                   class="w-full p-4 rounded-2xl shadow-lg text-sm outline-none focus:ring-2 focus:ring-blue-600 font-semibold">
-            
-            <div class="flex gap-2 overflow-x-auto no-scrollbar py-1">
-                <button onclick="filterProduk('Semua', this)" class="cat-btn bg-blue-600 text-white px-5 py-2.5 rounded-xl font-bold text-[10px] uppercase whitespace-nowrap shadow-lg">Semua</button>
-                <script>
-                    ["Pribadi","Profesional","Sosial","Finansial","Logistik","Edukasi","Digital","Kreativitas","Legal","Hiburan"].forEach(k => {
-                        document.write(`<button onclick="filterProduk('${k}', this)" class="cat-btn bg-slate-800 text-slate-400 px-5 py-2.5 rounded-xl font-bold text-[10px] uppercase whitespace-nowrap border border-slate-700">${k}</button>`);
-                    });
-                </script>
-            </div>
-        </div>
-
-        <div id="container" class="grid grid-menu"></div>
-
-        <div id="notaFull" class="fixed inset-0 z-[60] glass-dark flex items-end justify-center hidden">
-            <div class="bg-slate-900 w-full max-w-md rounded-t-[3rem] p-6 shadow-2xl border-t border-slate-700">
-                <div class="w-12 h-1.5 bg-slate-700 rounded-full mx-auto mb-6"></div>
-                <h2 class="text-xl font-black text-white mb-6 uppercase italic tracking-tighter">Detail Pesanan</h2>
-                <div id="listDetail" class="space-y-4 max-h-[50vh] overflow-y-auto no-scrollbar mb-6"></div>
-                <button onclick="toggleNota()" class="w-full py-4 border-2 border-slate-700 rounded-2xl font-bold text-slate-500 uppercase text-xs mb-3">Kembali Belanja</button>
-                <button onclick="processCheckout()" class="w-full bg-blue-600 text-white py-5 rounded-2xl font-black text-sm uppercase shadow-xl">BAYAR SEKARANG</button>
-            </div>
-        </div>
-
-        <div id="summarySection" class="fixed bottom-0 left-0 right-0 z-40 p-4 transform translate-y-full transition-transform duration-300">
-            <div class="max-w-md mx-auto bg-slate-800 p-6 rounded-t-[2.5rem] shadow-[0_-10px_40px_-15px_rgba(0,0,0,0.5)] border border-slate-700">
-                <div class="flex justify-between items-center mb-4">
-                    <span class="text-lg font-bold text-white">Total: <span id="totalHarga" class="text-blue-500 ml-1">Rp 0</span></span>
-                    <button onclick="toggleNota()" class="bg-blue-600/10 text-blue-400 px-4 py-2 rounded-xl text-[10px] font-black uppercase">Lihat Nota</button>
+                <div class="space-y-2">
+                    <input type="file" id="gambarInput" accept="image/*" onchange="handleImageUpload(this)" class="hidden">
+                    <label for="gambarInput" id="labelGambar" class="w-full p-4 rounded-2xl bg-slate-800 border border-slate-700 flex items-center justify-between cursor-pointer hover:border-blue-600 transition-all">
+                        <span id="statusUpload" class="text-sm text-slate-400 font-semibold">Pilih Foto Produk...</span>
+                        <span class="bg-blue-600 px-3 py-1.5 rounded-xl text-[10px] font-black uppercase text-white">PILIH</span>
+                    </label>
+                    <input type="hidden" id="fotoData"> 
+                    <div id="previewContainer" class="hidden mt-2 p-2 bg-slate-950 rounded-2xl border border-slate-700">
+                        <img id="imgPreview" src="" class="w-full h-32 object-cover rounded-xl">
+                    </div>
                 </div>
-                <button onclick="processCheckout()" class="w-full bg-blue-600 text-white py-4 rounded-2xl font-black text-sm uppercase shadow-xl flex justify-center items-center gap-2">
-                    Lanjutkan Pembayaran <span>→</span>
-                </button>
+
+                <div class="p-5 bg-blue-600/5 rounded-3xl border border-blue-500/20">
+                    <label class="block text-[9px] font-black uppercase text-blue-400 mb-2 italic">Opsi Varian (Ukuran:Harga:Stok)</label>
+                    <textarea id="stokDetail" placeholder="Contoh: S:50000:10, L:70000:5" class="w-full p-4 h-24 rounded-xl outline-none text-xs font-mono" spellcheck="false"></textarea>
+                    <p class="text-[8px] text-slate-500 mt-2 font-bold uppercase italic text-center">*Kosongkan jika barang satuan*</p>
+                </div>
+
+                <button onclick="simpanData()" id="btnSimpan" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-black py-5 rounded-3xl shadow-xl transition-all uppercase tracking-widest active:scale-95 text-xs">Simpan Ke Database 🚀</button>
             </div>
         </div>
-    </main>
+
+        <div id="overlayGudang" class="fixed inset-0 z-50 bg-slate-950 hidden flex flex-col">
+            <div class="p-6 border-b border-white/5 flex justify-between items-center bg-slate-900">
+                <h2 class="text-xl font-black italic text-blue-400 uppercase tracking-tighter">Gudang Djamantara</h2>
+                <button onclick="toggleGudang()" class="bg-red-500/10 text-red-500 px-4 py-2 rounded-xl font-black text-[9px] uppercase border border-red-500/20">Tutup</button>
+            </div>
+            
+            <div class="p-4 flex-1 overflow-y-auto no-scrollbar pb-32">
+                <input type="text" id="cariGudang" oninput="renderGudang()" placeholder="Cari nama produk di gudang..." class="w-full p-4 rounded-2xl bg-slate-900 border border-white/5 outline-none mb-6 text-sm font-bold focus:border-blue-500">
+                <div id="list-data" class="grid grid-cols-1 gap-4"></div>
+            </div>
+        </div>
+    </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getDatabase, ref, onValue, get, update, push, set } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { getDatabase, ref, push, set, onValue, remove, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyCa0EoSNnxgoxezzpzbkSIrEfwZdZc_7h0",
@@ -141,9 +111,9 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
-        let rawData = {}, cart = [], curFilter = 'Semua', selectedVars = {};
+        let dataFull = {};
 
-        // === FUNGSI UPLOAD & KOMPRESI GAMBAR ===
+        // --- Kompresi Gambar ---
         window.handleImageUpload = (input) => {
             const file = input.files[0];
             const statusText = document.getElementById('statusUpload');
@@ -157,9 +127,8 @@
                     const canvas = document.createElement('canvas');
                     let width = img.width;
                     let height = img.height;
+                    const MAX_WIDTH = 600; // Optimal untuk mobile
 
-                    // Resize ke max lebar 800px agar ringan
-                    const MAX_WIDTH = 800;
                     if (width > MAX_WIDTH) {
                         height *= MAX_WIDTH / width;
                         width = MAX_WIDTH;
@@ -169,8 +138,7 @@
                     const ctx = canvas.getContext('2d');
                     ctx.drawImage(img, 0, 0, width, height);
 
-                    // Konversi ke Base64 (JPEG kualitas 0.7)
-                    const base64 = canvas.toDataURL('image/jpeg', 0.7);
+                    const base64 = canvas.toDataURL('image/jpeg', 0.6); // Kualitas 60%
                     document.getElementById('fotoData').value = base64;
                     document.getElementById('previewContainer').classList.remove('hidden');
                     document.getElementById('imgPreview').src = base64;
@@ -181,184 +149,97 @@
             reader.readAsDataURL(file);
         };
 
-        // === SIMPAN KE DATABASE ===
-        window.saveToDB = async () => {
-            const nama = document.getElementById('namaBaru').value;
-            const foto = document.getElementById('fotoData').value;
-            if(!nama || !foto) return alert("Nama dan Foto wajib diisi!");
+        // --- Simpan Data ---
+        window.simpanData = () => {
+            const val = (id) => document.getElementById(id).value;
+            const btn = document.getElementById('btnSimpan');
 
-            try {
-                const newRef = push(ref(db, 'produk'));
-                await set(newRef, {
-                    nama: nama,
-                    kategori: document.getElementById('katBaru').value,
-                    harga: parseInt(document.getElementById('hargaBaru').value) || 0,
-                    stokDasar: parseInt(document.getElementById('stokBaru').value) || 0,
-                    gambar: foto,
-                    stokDetail: document.getElementById('varianBaru').value
-                });
-                alert("Berhasil disimpan!");
+            if(!val('nama') || !val('fotoData')) return alert("Nama dan Foto wajib ada!");
+
+            btn.disabled = true;
+            btn.innerText = "Sedang Menyimpan...";
+
+            set(push(ref(db, 'produk')), {
+                nama: val('nama'), 
+                harga: parseInt(val('harga')) || 0,
+                stokDasar: parseInt(val('stokDasar')) || 0, 
+                kategori: val('kategori'),
+                gambar: val('fotoData'), 
+                stokDetail: val('stokDetail') || "", 
+                tersedia: true
+            }).then(() => {
+                alert("Berhasil!");
                 location.reload();
-            } catch (e) { alert("Gagal Simpan!"); }
+            }).catch(() => {
+                alert("Gagal simpan!");
+                btn.disabled = false;
+                btn.innerText = "Simpan Ke Database 🚀";
+            });
         };
 
-        // === LOGIKA TOKO (EXISTING) ===
+        // --- Gudang Logic ---
+        window.toggleGudang = () => {
+            const ov = document.getElementById('overlayGudang');
+            ov.classList.toggle('hidden');
+            if(!ov.classList.contains('hidden')) ov.classList.add('animate-up');
+        };
+
         onValue(ref(db, 'produk'), (snap) => {
-            rawData = snap.val();
-            render();
+            dataFull = snap.val();
+            renderGudang();
         });
 
-        window.filterProduk = (kat, btn) => {
-            curFilter = kat;
-            document.querySelectorAll('.cat-btn').forEach(b => {
-                b.className = "cat-btn bg-slate-800 text-slate-400 px-5 py-2.5 rounded-xl font-bold text-[10px] uppercase whitespace-nowrap border border-slate-700";
-            });
-            btn.className = "cat-btn bg-blue-600 text-white px-5 py-2.5 rounded-xl font-bold text-[10px] uppercase whitespace-nowrap shadow-md";
-            render();
-        };
-
-        window.render = () => {
-            const cont = document.getElementById('container');
-            const search = document.getElementById('searchInput').value.toLowerCase();
+        window.renderGudang = () => {
+            const cont = document.getElementById('list-data');
+            const keyword = document.getElementById('cariGudang').value.toLowerCase();
             cont.innerHTML = "";
-
-            for(let id in rawData) {
-                const item = rawData[id];
-                if((curFilter === 'Semua' || item.kategori === curFilter) && item.nama.toLowerCase().includes(search)) {
-                    
-                    let hasVar = item.stokDetail && item.stokDetail.includes(':');
-                    let currentVar = selectedVars[id] || (hasVar ? item.stokDetail.split(',')[0].split(':')[0] : "Normal");
-                    let price = item.harga;
-                    let isOutOfStock = false;
-
-                    if(hasVar) {
-                        const match = item.stokDetail.split(',').find(v => v.trim().startsWith(currentVar));
-                        if(match) {
-                            const [sz, pr, qt] = match.trim().split(':');
-                            price = parseInt(pr);
-                            if(parseInt(qt) <= 0) isOutOfStock = true;
-                        }
-                    } else {
-                        if(parseInt(item.stokDasar) <= 0) isOutOfStock = true;
-                    }
-
-                    let controls = "";
-                    if (hasVar) {
-                        controls = `<select onchange="updateVarSelection('${id}', this)" class="w-full rounded-lg p-2 text-[10px] font-bold text-blue-400 outline-none mb-2">`;
-                        item.stokDetail.split(',').forEach(v => {
-                            const [sz, pr, qt] = v.trim().split(':');
-                            controls += `<option value="${sz}" ${sz === currentVar ? 'selected' : ''}>${sz} (Stok: ${qt})</option>`;
-                        });
-                        controls += `</select>`;
-                    }
-
-                    const totalInCart = cart.filter(c => c.id === id).reduce((s, c) => s + c.qty, 0);
-
+            
+            for (let id in dataFull) {
+                const item = dataFull[id];
+                if(item.nama.toLowerCase().includes(keyword)) {
                     cont.innerHTML += `
-                        <div class="menu-card p-3 flex flex-col ${isOutOfStock ? 'opacity-60' : ''}">
-                            <img src="${item.gambar}" class="w-full h-32 object-cover rounded-xl mb-3 ${isOutOfStock ? 'grayscale' : ''}">
-                            <h4 class="font-extrabold text-[13px] text-slate-100 leading-tight mb-1 h-10 overflow-hidden">${item.nama}</h4>
-                            <p class="text-blue-400 font-black text-sm mb-3">Rp ${price.toLocaleString()}</p>
-                            ${controls}
-                            <div class="flex items-center gap-2">
-                                <button onclick="${isOutOfStock ? "alert('Maaf, stok varian ini habis!')" : `toCart('${id}')`}" 
-                                        class="${isOutOfStock ? 'bg-slate-600 cursor-not-allowed' : 'bg-blue-600 active:scale-95'} text-white text-[10px] px-3 py-2.5 rounded-xl font-black flex-1 shadow-md transition-all">
-                                    ${isOutOfStock ? 'HABIS' : 'PESAN'}
-                                </button>
-                                <div class="flex items-center bg-blue-600/20 rounded-xl p-1">
-                                    <span class="px-2 text-xs font-black text-blue-400">${totalInCart}</span>
+                        <div class="bg-slate-900 p-5 rounded-[2.5rem] border border-white/5 flex flex-col gap-4 shadow-xl">
+                            <div class="flex items-center gap-4">
+                                <img src="${item.gambar}" class="w-12 h-12 object-cover rounded-xl bg-slate-950">
+                                <div class="flex-1">
+                                    <p class="text-white font-black uppercase text-[10px]">${item.nama}</p>
+                                    <p class="text-blue-500 font-bold text-[8px] uppercase">${item.kategori}</p>
+                                </div>
+                                <button onclick="delData('${id}')" class="bg-red-500/10 text-red-500 p-2 rounded-lg font-black text-[8px] uppercase border border-red-500/20">Hapus</button>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-3">
+                                <div class="bg-slate-950 p-3 rounded-2xl border border-white/5">
+                                    <span class="text-[7px] text-slate-500 uppercase block mb-1">Harga Dasar</span>
+                                    <input type="number" id="h-${id}" value="${item.harga}" class="bg-transparent text-blue-400 font-bold outline-none w-full text-xs">
+                                </div>
+                                <div class="bg-slate-950 p-3 rounded-2xl border border-white/5">
+                                    <span class="text-[7px] text-slate-500 uppercase block mb-1">Stok Dasar</span>
+                                    <input type="number" id="s-${id}" value="${item.stokDasar}" class="bg-transparent text-green-400 font-bold outline-none w-full text-xs">
                                 </div>
                             </div>
+
+                            <div class="bg-slate-950 p-3 rounded-2xl border border-white/5">
+                                <span class="text-[7px] text-slate-500 uppercase block mb-1">Varian (Size:Harga:Stok)</span>
+                                <input type="text" id="ed-${id}" value="${item.stokDetail}" class="bg-transparent text-slate-300 font-mono outline-none w-full text-[9px]">
+                            </div>
+
+                            <button onclick="upStk('${id}')" class="w-full bg-blue-600/10 text-blue-400 border border-blue-600/20 font-black py-3 rounded-xl uppercase hover:bg-blue-600 hover:text-white transition-all text-[9px]">Update Data</button>
                         </div>`;
                 }
             }
-            updateSummary();
         };
 
-        window.updateVarSelection = (id, el) => {
-            selectedVars[id] = el.value;
-            render();
+        window.upStk = (id) => {
+            update(ref(db, `produk/${id}`), { 
+                harga: parseInt(document.getElementById(`h-${id}`).value), 
+                stokDasar: parseInt(document.getElementById(`s-${id}`).value), 
+                stokDetail: document.getElementById(`ed-${id}`).value 
+            }).then(() => alert("Data diperbarui!"));
         };
 
-        window.toCart = (id) => {
-            const item = rawData[id];
-            const sz = selectedVars[id] || (item.stokDetail ? item.stokDetail.split(',')[0].split(':')[0] : "Normal");
-            let pr = item.harga, mx = item.stokDasar;
-            if(item.stokDetail && item.stokDetail.includes(':')) {
-                const match = item.stokDetail.split(',').find(v => v.trim().startsWith(sz));
-                pr = parseInt(match.split(':')[1]);
-                mx = parseInt(match.split(':')[2]);
-            }
-            if(mx <= 0) return alert("Stok varian ini kosong!");
-            const exist = cart.find(c => c.id === id && c.sz === sz);
-            if(exist) {
-                if(exist.qty < mx) exist.qty += 1; else alert("Stok Habis!");
-            } else {
-                cart.push({ id, nama: item.nama, harga: pr, sz, qty: 1, max: mx, img: item.gambar });
-            }
-            render();
-        };
-
-        window.changeQty = (idx, delta) => {
-            cart[idx].qty += delta;
-            if(cart[idx].qty > cart[idx].max) { cart[idx].qty = cart[idx].max; alert("Stok Maksimal!"); }
-            if(cart[idx].qty <= 0) cart.splice(idx, 1);
-            if(cart.length === 0) document.getElementById('notaFull').classList.add('hidden');
-            render();
-            updateNotaList();
-        };
-
-        window.toggleNota = () => document.getElementById('notaFull').classList.toggle('hidden') || updateNotaList();
-
-        function updateNotaList() {
-            const list = document.getElementById('listDetail');
-            list.innerHTML = "";
-            cart.forEach((c, idx) => {
-                list.innerHTML += `
-                    <div class="flex items-center gap-4 bg-slate-800 p-3 rounded-2xl border border-slate-700">
-                        <img src="${c.img}" class="w-16 h-16 object-cover rounded-xl">
-                        <div class="flex-1">
-                            <h5 class="text-xs font-black text-white uppercase">${c.nama}</h5>
-                            <p class="text-[10px] text-blue-400 font-bold">${c.sz} | Rp ${c.harga.toLocaleString()}</p>
-                        </div>
-                        <div class="flex items-center bg-slate-900 rounded-lg border border-slate-700">
-                            <button onclick="changeQty(${idx}, -1)" class="w-8 h-8 font-bold text-slate-500">-</button>
-                            <span class="px-2 text-xs font-black text-white">${c.qty}</span>
-                            <button onclick="changeQty(${idx}, 1)" class="w-8 h-8 font-bold text-blue-500">+</button>
-                        </div>
-                    </div>`;
-            });
-        }
-
-        function updateSummary() {
-            const totalVal = cart.reduce((s, c) => s + (c.harga * c.qty), 0);
-            const totalItem = cart.reduce((s, c) => s + c.qty, 0);
-            document.getElementById('totalHarga').innerText = "Rp " + totalVal.toLocaleString();
-            document.getElementById('cartCount').innerText = totalItem;
-            document.getElementById('summarySection').style.transform = cart.length > 0 ? "translateY(0)" : "translateY(100%)";
-        }
-
-        window.processCheckout = async () => {
-            let msg = `*ORDER DJAMANTARA*%0A%0A`;
-            try {
-                for (let item of cart) {
-                    const snap = await get(ref(db, `produk/${item.id}`));
-                    const current = snap.val();
-                    if(item.sz === "Normal") {
-                        await update(ref(db, `produk/${item.id}`), { stokDasar: current.stokDasar - item.qty });
-                    } else {
-                        let newArr = current.stokDetail.split(',').map(v => {
-                            let p = v.trim().split(':');
-                            return p[0] === item.sz ? `${p[0]}:${p[1]}:${parseInt(p[2]) - item.qty}` : v.trim();
-                        });
-                        await update(ref(db, `produk/${item.id}`), { stokDetail: newArr.join(', ') });
-                    }
-                    msg += `- ${item.nama} (${item.sz}) x${item.qty}%0A`;
-                }
-                window.open(`https://wa.me/62895397276430?text=${msg}%0A*TOTAL: ${document.getElementById('totalHarga').innerText}*`, '_blank');
-                cart = []; render();
-                document.getElementById('notaFull').classList.add('hidden');
-            } catch (e) { alert("Error Database!"); }
+        window.delData = (id) => {
+            if(confirm("Hapus produk ini?")) remove(ref(db, 'produk/' + id));
         };
     </script>
 </body>
